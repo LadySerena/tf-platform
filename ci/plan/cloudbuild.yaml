@@ -1,0 +1,9 @@
+steps:
+  - name: hashicorp/terraform:light
+    args:
+      - init
+  - name: hashicorp/terraform:light
+    args:
+      - plan
+      - '-out'
+      - 'tf.plan'
