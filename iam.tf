@@ -10,6 +10,9 @@ module "project-iam-bindings" {
     ],
     "roles/iam.securityAdmin" = [
       "serviceAccount:681636924832@cloudbuild.gserviceaccount.com",
-    ]
+    ],
+    "roles/compute.admin" = [
+      "serviceAccount:681636924832@cloudbuild.gserviceaccount.com",
+    ],
   }
 }
