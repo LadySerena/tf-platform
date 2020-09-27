@@ -14,5 +14,11 @@ module "project-iam-bindings" {
     "roles/compute.admin" = [
       "serviceAccount:681636924832@cloudbuild.gserviceaccount.com",
     ],
+    "roles/storage.admin" = [
+      "serviceAccount:681636924832@cloudbuild.gserviceaccount.com",
+    ],
+    "roles/iam.serviceAccountUser" = [
+      "serviceAccount:681636924832@cloudbuild.gserviceaccount.com",
+    ],
   }
 }
