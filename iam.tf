@@ -20,5 +20,9 @@ module "project-iam-bindings" {
     "roles/iam.serviceAccountUser" = [
       "serviceAccount:681636924832@cloudbuild.gserviceaccount.com",
     ],
+    "roles/compute.imageUser" = [
+      "serviceAccount:952032963423@cloudservices.gserviceaccount.com",
+      "serviceAccount:1059113020718@cloudservices.gserviceaccount.com",
+    ],
   }
 }
