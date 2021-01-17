@@ -6,9 +6,10 @@ resource "google_dns_managed_zone" "default" {
 
 resource "google_dns_record_set" "blog" {
   managed_zone = google_dns_managed_zone.default.name
-  name = "blog.${google_dns_managed_zone.default.dns_name}"
-  rrdatas = ["ladyserena.github.io."]
-  ttl = 300
+  name         = "blog.${google_dns_managed_zone.default.dns_name}"
+  rrdatas = [
+  "ladyserena.github.io."]
+  ttl  = 300
   type = "CNAME"
 }
 
