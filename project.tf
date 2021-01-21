@@ -13,5 +13,6 @@ module "project-services" {
     "storage.googleapis.com",
     "cloudresourcemanager.googleapis.com",
     "cloudbuild.googleapis.com",
+    "secretmanager.googleapis.com"
   ]
 }
