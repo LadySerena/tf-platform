@@ -4,6 +4,9 @@ steps:
       - init
   - name: hashicorp/terraform:light
     args:
+      - validate
+  - name: hashicorp/terraform:light
+    args:
       - plan
       - '-out'
       - 'tf.plan'
