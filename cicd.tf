@@ -32,7 +32,7 @@ module "dbus-api-triggers" {
   repoName = "dbus-api"
 }
 
-module "dbus-api-triggers" {
+module "paper-debian-package-triggers" {
   source = "git::https://github.com/LadySerena/terraform-modules.git//github-push-pr-tag-triggers?ref=1.0.0"
   ownerName = "LadySerena"
   project_id = data.google_project.project.project_id
