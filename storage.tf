@@ -8,22 +8,22 @@ resource "google_storage_bucket" "debian-v1" {
 
 
 
-#module "minecraft-backup" {
-#  source  = "terraform-google-modules/cloud-storage/google//modules/simple_bucket"
-#  version = "~> v1.7.2"
-#
-#  name       = "minecraft-world-backups.serenacodes.com"
-#  project_id = data.google_project.project.project_id
-#  location   = "us-central1"
-#  iam_members = [
-#    {
-#      role   = "roles/storage.viewer"
-#      member = "serviceAccount:${module.service_accounts.iam_email}"
-#    },
-#    {
-#      role   = "roles/storage.objectCreator"
-#      member = "serviceAccount:${module.service_accounts.iam_email}"
-#    },
-#  ]
-#}
+module "minecraft-backup" {
+  source  = "terraform-google-modules/cloud-storage/google//modules/simple_bucket"
+  version = "~> v1.7.2"
+
+  name       = "minecraft-world-backups.serenacodes.com"
+  project_id = data.google_project.project.project_id
+  location   = "us-central1"
+  iam_members = [
+    {
+      role   = "roles/storage.viewer"
+      member = "serviceAccount:${module.service_accounts.iam_email}"
+    },
+    {
+      role   = "roles/storage.objectCreator"
+      member = "serviceAccount:${module.service_accounts.iam_email}"
+    },
+  ]
+}
 
