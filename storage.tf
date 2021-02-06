@@ -17,7 +17,7 @@ module "minecraft-backup" {
   location   = "us-central1"
   iam_members = [
     {
-      role   = "roles/storage.viewer"
+      role   = "roles/storage.objectViewer"
       member = "${module.service_accounts.iam_email}"
     },
     {
