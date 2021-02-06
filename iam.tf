@@ -5,6 +5,9 @@ module "project-iam-bindings" {
   mode = "additive"
 
   bindings = {
+    "roles/iam.serviceAccountCreator" = [
+      "serviceAccount:681636924832@cloudbuild.gserviceaccount.com",
+    ]
     "roles/serviceusage.serviceUsageAdmin" = [
       "serviceAccount:681636924832@cloudbuild.gserviceaccount.com",
     ],
@@ -30,14 +33,14 @@ module "project-iam-bindings" {
   }
 }
 
-module "service_accounts" {
-  source        = "terraform-google-modules/service-accounts/google"
-  version       = "~> 3.0"
-  project_id    = data.google_project.project.project_id
-  prefix        = "tel-sa"
-  names         = ["minecraft"]
-  project_roles = [
-    "${data.google_project.project.project_id}=>roles/secretmanager.viewer",
-
-  ]
-}
+#module "service_accounts" {
+#  source        = "terraform-google-modules/service-accounts/google"
+#  version       = "~> 3.0"
+#  project_id    = data.google_project.project.project_id
+#  prefix        = "tel-sa"
+#  names         = ["minecraft"]
+#  project_roles = [
+#    "${data.google_project.project.project_id}=>roles/secretmanager.viewer",
+#
+#  ]
+#}
