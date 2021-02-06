@@ -10,7 +10,7 @@ module "minecraft-backup" {
   source  = "terraform-google-modules/cloud-storage/google//modules/simple_bucket"
   version = "~> v1.7.2"
 
-  name       = "minecraft-world-backups"
+  name       = "minecraft-world-backups.serenacodes.com"
   project_id = data.google_project.project.project_id
   location   = "us-central1"
   iam_members = [
