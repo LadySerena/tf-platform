@@ -33,7 +33,7 @@ module "project-iam-bindings" {
 module "service_accounts" {
   source        = "terraform-google-modules/service-accounts/google"
   version       = "~> 3.0"
-  project_id    = "data.google_project.project.project_id"
+  project_id    = data.google_project.project.project_id
   prefix        = "tel-sa"
   names         = ["minecraft"]
   project_roles = [
