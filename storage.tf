@@ -18,11 +18,11 @@ module "minecraft-backup" {
   iam_members = [
     {
       role   = "roles/storage.viewer"
-      member = "serviceAccount:${module.service_accounts.iam_email}"
+      member = "${module.service_accounts.iam_email}"
     },
     {
       role   = "roles/storage.objectCreator"
-      member = "serviceAccount:${module.service_accounts.iam_email}"
+      member = "${module.service_accounts.iam_email}"
     },
   ]
 }
