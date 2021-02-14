@@ -1,14 +1,16 @@
 steps:
-  - name: hashicorp/terraform:light
+  - name: hashicorp/terraform:$_TERRAFORM_VERSION
     args:
       - init
-  - name: hashicorp/terraform:light
+  - name: hashicorp/terraform:$_TERRAFORM_VERSION
     args:
       - plan
       - '-out'
       - 'tf.plan'
-  - name: hashicorp/terraform:light
+  - name: hashicorp/terraform:_TERRAFORM_VERSION
     args:
       - apply
       - '-auto-approve'
       - 'tf.plan'
+substitutions:
+  _TERRAFORM_VERSION: 0.14.6

@@ -1,10 +1,11 @@
 module "platform-terraform-triggers" {
-  source = "git::https://github.com/LadySerena/terraform-modules.git//pr-and-tag?ref=0.2.0"
+  source = "git::https://github.com/LadySerena/terraform-modules.git//github-push-pr-tag-triggers?ref=1.0.0"
   ownerName = "LadySerena"
   repoName = "tf-platform"
   project_id = data.google_project.project.project_id
-  ciMainPath = "ci/apply/cloudbuild.yaml"
-  ciDevPath = "ci/plan/cloudbuild.yaml"
+  ciBranchPushPath = "ci/plan/cloudbuild.yaml"
+  ciTagPath = "ci/apply/cloudbuild.yaml"
+  ciPullRequestPath = "ci/plan/cloudbuild.yaml"
 }
 
 module "base-image-triggers" {
@@ -37,6 +38,16 @@ module "paper-debian-package-triggers" {
   ownerName = "LadySerena"
   project_id = data.google_project.project.project_id
   repoName = "paper-debian-package"
+  ciBranchPushPath = "ci/branch-push/cloudbuild.yaml"
+  ciTagPath = "ci/release/cloudbuild.yaml"
+  ciPullRequestPath = "ci/pull-request/cloudbuild.yaml"
+}
+
+module "paper-image-triggers" {
+  source = "git::https://github.com/LadySerena/terraform-modules.git//github-push-pr-tag-triggers?ref=1.0.0"
+  ownerName = "LadySerena"
+  project_id = data.google_project.project.project_id
+  repoName = "paper-image"
   ciBranchPushPath = "ci/branch-push/cloudbuild.yaml"
   ciTagPath = "ci/release/cloudbuild.yaml"
   ciPullRequestPath = "ci/pull-request/cloudbuild.yaml"
