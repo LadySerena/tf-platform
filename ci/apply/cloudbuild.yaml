@@ -7,7 +7,7 @@ steps:
       - plan
       - '-out'
       - 'tf.plan'
-  - name: hashicorp/terraform:_TERRAFORM_VERSION
+  - name: hashicorp/terraform:$_TERRAFORM_VERSION
     args:
       - apply
       - '-auto-approve'
