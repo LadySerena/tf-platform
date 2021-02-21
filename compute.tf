@@ -1,3 +1,8 @@
+data "google_compute_image" "minecraft-image" {
+  family  = "serena-minecraft"
+  project = data.google_project.project.name
+}
+
 module "minecraft-vpc" {
   source  = "terraform-google-modules/network/google"
   version = "~> 3.0"
@@ -77,4 +82,31 @@ module "firewall_rules" {
       log_config = null
     }
   ]
+}
+
+resource "google_compute_disk" "minecraft-data" {
+  name = "minecraft-data"
+  type = "pd-ssd"
+  size = 30
+}
+
+resource "google_compute_instance" "minecraft-test" {
+  name         = "minecraft-test"
+  machine_type = "e2-medium"
+  zone         = "us-central1-a"
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.minecraft-image.self_link
+    }
+  }
+  attached_disk {
+    source      = google_compute_disk.minecraft-data.self_link
+    device_name = "minecraft-data"
+  }
+  network_interface {
+    network = module.minecraft-vpc.network_self_link
+    access_config {
+
+    }
+  }
 }
