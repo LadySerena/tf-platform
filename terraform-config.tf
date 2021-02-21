@@ -10,3 +10,8 @@ terraform {
     }
   }
 }
+
+provider "google" {
+  project = "telvanni-platform"
+  region  = "us-central1"
+}
