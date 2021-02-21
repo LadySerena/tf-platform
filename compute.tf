@@ -37,14 +37,10 @@ module "firewall_rules" {
       direction   = "INGRESS"
       ranges = [
       "35.235.240.0/20"]
-      source = {
-        tags             = null
-        service_accounts = null
-      }
-      target = {
-        tags             = null
-        service_accounts = null
-      }
+      source_tags             = null
+      source_service_accounts = null
+      target_tags             = null
+      target_service_accounts = null
       allow = [
         {
           protocol = "tcp"
@@ -61,14 +57,10 @@ module "firewall_rules" {
       direction   = "INGRESS"
       ranges = [
       "0.0.0.0/0"]
-      source = {
-        tags             = null
-        service_accounts = null
-      }
-      target = {
-        tags             = null
-        service_accounts = null
-      }
+      source_tags             = null
+      source_service_accounts = null
+      target_tags             = null
+      target_service_accounts = null
       allow = [
         {
           protocol = "tcp"
