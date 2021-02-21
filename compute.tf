@@ -24,3 +24,41 @@ module "minecraft-vpc" {
     }
   ]
 }
+module "firewall_rules" {
+  source       = "terraform-google-modules/network/google//modules/firewall-rules"
+  project_id   = data.google_project.project.project_id
+  network_name = module.minecraft-vpc.network_name
+
+  rules = [
+    {
+      name        = "allow-ssh-iap-ingress"
+      priority    = 1000
+      description = "allow ssh via identity aware proxy see here for range https://cloud.google.com/iap/docs/using-tcp-forwarding#create-firewall-rule"
+      direction   = "INGRESS"
+      ranges      = ["35.235.240.0/20"]
+      allow = [{
+        protocol = "tcp"
+        ports    = ["22"]
+      }]
+      deny = []
+    },
+    {
+      name        = "allow-minecraft"
+      priority    = 1001
+      description = "allows friends on public internet to access minecraft"
+      direction   = "INGRESS"
+      ranges      = ["0.0.0.0/0"]
+      allow = [
+        {
+          protocol = "tcp"
+          ports    = ["25565"]
+        },
+        {
+          protocol = "udp"
+          ports    = ["25565"]
+        }
+      ]
+      deny = []
+    }
+  ]
+}
