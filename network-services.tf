@@ -6,10 +6,10 @@ resource "google_dns_managed_zone" "default" {
 
 resource "google_dns_record_set" "verification" {
   managed_zone = google_dns_managed_zone.default.name
-  name = "serenacodes.com."
-  rrdatas = ["google-site-verification=QGC_RBY5dkopavcMI_4ZFDloF5y3qVYp_o1dmch9zh0"]
-  ttl = 300
-  type = "TXT"
+  name         = "serenacodes.com."
+  rrdatas      = ["google-site-verification=QGC_RBY5dkopavcMI_4ZFDloF5y3qVYp_o1dmch9zh0"]
+  ttl          = 300
+  type         = "TXT"
 }
 
 resource "google_dns_record_set" "blog" {
