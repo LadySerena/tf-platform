@@ -35,30 +35,54 @@ module "firewall_rules" {
       priority    = 1000
       description = "allow ssh via identity aware proxy see here for range https://cloud.google.com/iap/docs/using-tcp-forwarding#create-firewall-rule"
       direction   = "INGRESS"
-      ranges      = ["35.235.240.0/20"]
-      allow = [{
-        protocol = "tcp"
-        ports    = ["22"]
+      ranges = [
+      "35.235.240.0/20"]
+      source = {
+        tags             = null
+        service_accounts = null
+      }
+      target = {
+        tags             = null
+        service_accounts = null
+      }
+      allow = [
+        {
+          protocol = "tcp"
+          ports = [
+          "22"]
       }]
-      deny = []
+      deny       = []
+      log_config = null
     },
     {
       name        = "allow-minecraft"
       priority    = 1001
       description = "allows friends on public internet to access minecraft"
       direction   = "INGRESS"
-      ranges      = ["0.0.0.0/0"]
+      ranges = [
+      "0.0.0.0/0"]
+      source = {
+        tags             = null
+        service_accounts = null
+      }
+      target = {
+        tags             = null
+        service_accounts = null
+      }
       allow = [
         {
           protocol = "tcp"
-          ports    = ["25565"]
+          ports = [
+          "25565"]
         },
         {
           protocol = "udp"
-          ports    = ["25565"]
+          ports = [
+          "25565"]
         }
       ]
-      deny = []
+      deny       = []
+      log_config = null
     }
   ]
 }
