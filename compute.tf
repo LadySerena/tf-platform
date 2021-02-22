@@ -131,6 +131,9 @@ resource "google_compute_instance" "minecraft-test" {
     EOT
 
   }
+
+  metadata_startup_script = ""
+
   boot_disk {
     initialize_params {
       image = data.google_compute_image.minecraft-image.self_link
