@@ -1,3 +1,7 @@
+locals {
+  disk-id = "minecraft-data"
+}
+
 data "google_compute_image" "minecraft-image" {
   family  = "serena-minecraft"
   project = data.google_project.project.name
@@ -95,10 +99,15 @@ resource "google_compute_instance" "minecraft-test" {
   machine_type = "e2-medium"
   zone         = "us-central1-a"
   metadata = {
-    "dbus-secret-name" = "mc-dbus-api-htpasswd"
-    "service-name"     = "minecraft.service"
-    "tls-secret-name"  = "minecraft-dbus-key"
-    "tls-cert"         = <<EOT
+    "mount-point"       = "/minecraft-data/"
+    "owner"             = "minecraft"
+    "disk-id"           = local.disk-id
+    "volume-group-name" = "minecraft-volume-group"
+    "lvm-name"          = "minecraft-logical-volume"
+    "dbus-secret-name"  = "mc-dbus-api-htpasswd"
+    "service-name"      = "minecraft.service"
+    "tls-secret-name"   = "minecraft-dbus-key"
+    "tls-cert"          = <<EOT
     -----BEGIN CERTIFICATE-----
     MIIFCjCCAvKgAwIBAgICEAAwDQYJKoZIhvcNAQELBQAwVTELMAkGA1UEBhMCVVMx
     EjAQBgNVBAgMCU1pbm5lc290YTETMBEGA1UECgwKU2VyZW5hY29ycDEdMBsGA1UE
@@ -132,7 +141,7 @@ resource "google_compute_instance" "minecraft-test" {
 
   }
 
-  metadata_startup_script = ""
+  metadata_startup_script = file("scripts/minecraft-disk.sh")
 
   boot_disk {
     initialize_params {
@@ -141,7 +150,7 @@ resource "google_compute_instance" "minecraft-test" {
   }
   attached_disk {
     source      = google_compute_disk.minecraft-data.self_link
-    device_name = "minecraft-data"
+    device_name = local.disk-id
   }
   network_interface {
     network = module.minecraft-vpc.network_self_link
