@@ -92,12 +92,13 @@ resource "google_compute_disk" "minecraft-data" {
   name = "minecraft-data"
   type = "pd-ssd"
   size = 30
+  zone = "us-central1-f"
 }
 
 resource "google_compute_instance" "minecraft-test" {
   name         = "minecraft-test"
   machine_type = "e2-medium"
-  zone         = "us-central1-a"
+  zone         = "us-central1-f"
   metadata = {
     "mount-point"       = "/minecraft-data/"
     "owner"             = "minecraft"
