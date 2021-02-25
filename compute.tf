@@ -122,6 +122,7 @@ resource "google_compute_instance" "minecraft-test" {
     email = module.service_accounts.email
   }
 
+  ## todo fix permissions issues
   boot_disk {
     initialize_params {
       image = data.google_compute_image.minecraft-image.self_link
