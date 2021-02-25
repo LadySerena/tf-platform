@@ -145,6 +145,11 @@ resource "google_compute_instance" "minecraft-test" {
 
   metadata_startup_script = file("scripts/minecraft-init.sh")
 
+  service_account {
+    scopes = ["logging-write", "monitoring-write", "cloud-platform"]
+    email  = module.service_accounts.email
+  }
+
   boot_disk {
     initialize_params {
       image = data.google_compute_image.minecraft-image.self_link

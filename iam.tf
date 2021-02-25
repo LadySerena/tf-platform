@@ -40,6 +40,7 @@ module "service_accounts" {
   names      = ["minecraft"]
   project_roles = [
     "${data.google_project.project.project_id}=>roles/secretmanager.viewer",
-
+    "${data.google_project.project.project_id}=>roles/logging.logWriter",
+    "${data.google_project.project.project_id}=>roles/monitoring.metricWriter",
   ]
 }
