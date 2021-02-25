@@ -154,7 +154,7 @@ resource "google_compute_instance" "minecraft-test" {
     device_name = local.disk-id
   }
   network_interface {
-    network = module.minecraft-vpc.network_self_link
+    subnetwork = element(module.minecraft-vpc.subnets_self_links, 0)
     access_config {
 
     }
