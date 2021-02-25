@@ -14,7 +14,7 @@ create_lvm() {
 }
 
 create_fs() {
-  sudo mkfs.ext4 "/dev/$volume_group_name/$lvm_name"
+  sudo mkfs.xfs "/dev/$volume_group_name/$lvm_name"
 }
 
 mount_lvm() {
@@ -24,7 +24,6 @@ mount_lvm() {
 if [ ! -d "$mount_point" ]; then
   echo "$mount_point doesn't exist creating it now"
   sudo mkdir -p "$mount_point"
-  sudo chown -R $owner $mount_point
 
 else
   echo "$mount_point exists skipping mkdir"
@@ -37,8 +36,8 @@ else
   echo "lvm exists skipping lvm creation"
 fi
 
-# check if disk has been formatted if it hasn't then format it with ext4 filesystem
-if ! sudo file -sL /dev/$volume_group_name/$lvm_name | grep ext4 >>/dev/null; then
+# check if disk has been formatted if it hasn't then format it with xfs filesystem
+if ! sudo file -sL /dev/$volume_group_name/$lvm_name | grep xfs >>/dev/null; then
   echo "creating filesystem"
   create_fs
 else
@@ -51,6 +50,8 @@ else
   echo "mounting lvm"
   mount_lvm
 fi
+echo "setting permissions for $mount_point for owner $owner"
+sudo chown -R "$owner" "$mount_point"
 
 ### Minecraft service config
 rcon_secret_name=$(curl http://metadata.google.internal/computeMetadata/v1/instance/attributes/rcon-secret-name -H "Metadata-Flavor: Google")
