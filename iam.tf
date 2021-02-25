@@ -37,10 +37,12 @@ module "service_accounts" {
   version    = "~> 3.0"
   project_id = data.google_project.project.project_id
   prefix     = "tel-sa"
-  names      = ["minecraft"]
+  names = [
+  "minecraft"]
   project_roles = [
     "${data.google_project.project.project_id}=>roles/secretmanager.viewer",
     "${data.google_project.project.project_id}=>roles/logging.logWriter",
     "${data.google_project.project.project_id}=>roles/monitoring.metricWriter",
+    "${data.google_project.project.project_id}=>roles/secretmanager.secretAccessor",
   ]
 }
