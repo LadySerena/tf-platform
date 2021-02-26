@@ -24,11 +24,13 @@ mount_lvm() {
 if [ ! -d "$mount_point" ]; then
   echo "$mount_point doesn't exist creating it now"
   sudo mkdir -p "$mount_point"
-  sudo chown -R $owner $mount_point
 
 else
   echo "$mount_point exists skipping mkdir"
 fi
+
+echo "setting ownership of $mount_point to $owner"
+sudo chown -R "$owner" "$mount_point"
 
 if [ ! -d "/dev/$volume_group_name" ]; then
   echo "lvm doesn't exist now creating"
