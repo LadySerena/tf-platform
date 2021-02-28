@@ -96,9 +96,9 @@ resource "google_compute_disk" "minecraft-data" {
 }
 
 resource "google_compute_instance" "minecraft-test" {
-  name         = "minecraft-test"
+  name         = "minecraft-server"
   machine_type = "e2-medium"
-  zone         = "us-central1-f"
+  zone         = "us-central1-a"
   metadata = {
     "mount-point"       = "/minecraft-data/"
     "owner"             = "minecraft"
