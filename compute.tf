@@ -1,5 +1,6 @@
 locals {
   disk-id = "minecraft-data"
+  zone    = "us-central1-a"
 }
 
 data "google_compute_image" "minecraft-image" {
@@ -92,13 +93,13 @@ resource "google_compute_disk" "minecraft-data" {
   name = "minecraft-data"
   type = "pd-ssd"
   size = 30
-  zone = "us-central1-f"
+  zone = local.zone
 }
 
 resource "google_compute_instance" "minecraft-test" {
   name         = "minecraft-server"
   machine_type = "e2-medium"
-  zone         = "us-central1-a"
+  zone         = local.zone
   metadata = {
     "mount-point"       = "/minecraft-data/"
     "owner"             = "minecraft"
@@ -122,7 +123,6 @@ resource "google_compute_instance" "minecraft-test" {
     email = module.service_accounts.email
   }
 
-  ## todo fix permissions issues
   boot_disk {
     initialize_params {
       image = data.google_compute_image.minecraft-image.self_link
