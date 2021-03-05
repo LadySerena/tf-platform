@@ -89,53 +89,55 @@ module "firewall_rules" {
   ]
 }
 
-resource "google_compute_disk" "minecraft-data" {
-  name = "minecraft-data"
-  type = "pd-ssd"
-  size = 30
-  zone = local.zone
-}
 
-resource "google_compute_instance" "minecraft-test" {
-  name         = "minecraft-server"
-  machine_type = "f1-micro" #bad idea for production just for testing on the cheap
-  zone         = local.zone
-  metadata = {
-    "mount-point"       = "/minecraft-data/"
-    "owner"             = "minecraft"
-    "disk-id"           = local.disk-id
-    "volume-group-name" = "minecraft-volume-group"
-    "lvm-name"          = "minecraft-logical-volume"
-    "rcon-secret-name"  = "rcon-password"
-    "dbus-secret-name"  = "mc-dbus-api-htpasswd"
-    "service-name"      = "minecraft.service"
-    "tls-secret-name"   = "minecraft-dbus-key"
-    "tls-cert"          = file("./data/minecraft-cert.pem")
-  }
 
-  metadata_startup_script = file("scripts/minecraft-init.sh")
-
-  service_account {
-    scopes = [
-      "logging-write",
-      "monitoring-write",
-    "cloud-platform"]
-    email = module.service_accounts.email
-  }
-
-  boot_disk {
-    initialize_params {
-      image = data.google_compute_image.minecraft-image.self_link
-    }
-  }
-  attached_disk {
-    source      = google_compute_disk.minecraft-data.self_link
-    device_name = local.disk-id
-  }
-  network_interface {
-    subnetwork = element(module.minecraft-vpc.subnets_self_links, 0)
-    access_config {
-
-    }
-  }
-}
+#resource "google_compute_disk" "minecraft-data" {
+#  name = "minecraft-data"
+#  type = "pd-ssd"
+#  size = 30
+#  zone = local.zone
+#}
+#
+#resource "google_compute_instance" "minecraft-test" {
+#  name         = "minecraft-server"
+#  machine_type = "f1-micro" #bad idea for production just for testing on the cheap
+#  zone         = local.zone
+#  metadata = {
+#    "mount-point"       = "/minecraft-data/"
+#    "owner"             = "minecraft"
+#    "disk-id"           = local.disk-id
+#    "volume-group-name" = "minecraft-volume-group"
+#    "lvm-name"          = "minecraft-logical-volume"
+#    "rcon-secret-name"  = "rcon-password"
+#    "dbus-secret-name"  = "mc-dbus-api-htpasswd"
+#    "service-name"      = "minecraft.service"
+#    "tls-secret-name"   = "minecraft-dbus-key"
+#    "tls-cert"          = file("./data/minecraft-cert.pem")
+#  }
+#
+#  metadata_startup_script = file("scripts/minecraft-init.sh")
+#
+#  service_account {
+#    scopes = [
+#      "logging-write",
+#      "monitoring-write",
+#    "cloud-platform"]
+#    email = module.service_accounts.email
+#  }
+#
+#  boot_disk {
+#    initialize_params {
+#      image = data.google_compute_image.minecraft-image.self_link
+#    }
+#  }
+#  attached_disk {
+#    source      = google_compute_disk.minecraft-data.self_link
+#    device_name = local.disk-id
+#  }
+#  network_interface {
+#    subnetwork = element(module.minecraft-vpc.subnets_self_links, 0)
+#    access_config {
+#
+#    }
+#  }
+#}
