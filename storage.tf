@@ -13,6 +13,21 @@ module "minecraft-backup" {
   name       = "minecraft-world-backups.serenacodes.com"
   project_id = data.google_project.project.project_id
   location   = "us-central1"
+  retention_policy = {
+    is_locked        = false
+    retention_period = 604800
+  }
+  lifecycle_rules = [
+    {
+      action = {
+        type = "Delete"
+
+      }
+      condition = {
+        age = 7
+      }
+    }
+  ]
   iam_members = [
     {
       role   = "roles/storage.objectViewer"
