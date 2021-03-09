@@ -8,23 +8,22 @@ volume_group_name=$(curl http://metadata.google.internal/computeMetadata/v1/inst
 lvm_name=$(curl http://metadata.google.internal/computeMetadata/v1/instance/attributes/lvm-name -H "Metadata-Flavor: Google")
 
 create_lvm() {
-  sudo pvcreate "/dev/disk/by-id/google-$disk_id"
-  sudo vgcreate "$volume_group_name" "/dev/disk/by-id/google-$disk_id"
-  sudo lvcreate -l +100%FREE "$volume_group_name" -n "$lvm_name"
+  pvcreate "/dev/disk/by-id/google-$disk_id"
+  vgcreate "$volume_group_name" "/dev/disk/by-id/google-$disk_id"
+  lvcreate -l +100%FREE "$volume_group_name" -n "$lvm_name"
 }
 
 create_fs() {
-  sudo mkfs.ext4 "/dev/$volume_group_name/$lvm_name"
+  mkfs.ext4 "/dev/$volume_group_name/$lvm_name"
 }
 
 mount_lvm() {
-  sudo mount "/dev/$volume_group_name/$lvm_name" "$mount_point"
+  mount "/dev/$volume_group_name/$lvm_name" "$mount_point"
 }
 
 if [ ! -d "$mount_point" ]; then
   echo "$mount_point doesn't exist creating it now"
-  sudo mkdir -p "$mount_point"
-  sudo chown -R $owner $mount_point
+  mkdir -p "$mount_point"
 
 else
   echo "$mount_point exists skipping mkdir"
@@ -38,28 +37,33 @@ else
 fi
 
 # check if disk has been formatted if it hasn't then format it with ext4 filesystem
-if ! sudo file -sL /dev/$volume_group_name/$lvm_name | grep ext4 >>/dev/null; then
+if ! file -sL "/dev/$volume_group_name/$lvm_name" | grep ext4 >>/dev/null; then
   echo "creating filesystem"
   create_fs
 else
   echo "disk is formatted skipping filesystem creation"
 fi
 
-if findmnt -M $mount_point >>/dev/null; then
+if findmnt -M "$mount_point" >>/dev/null; then
   echo "lvm is already mounted skipping mounting"
 else
   echo "mounting lvm"
   mount_lvm
 fi
 
+echo "setting ownership of $mount_point to $owner"
+chown -R "$owner" "$mount_point"
+
 ### Minecraft service config
+echo "configuring minecraft server"
 rcon_secret_name=$(curl http://metadata.google.internal/computeMetadata/v1/instance/attributes/rcon-secret-name -H "Metadata-Flavor: Google")
 rcon_password=$(gcloud secrets versions access "latest" --secret="$rcon_secret_name")
 sed -e "s/{{rcon_password}}/$rcon_password/g" /opt/minecraft/rcon-config.yaml.template >/opt/minecraft/rcon-config.yaml
 sed -e "s/{{rcon_password}}/$rcon_password/g" /opt/minecraft/server.properties.template >/opt/minecraft/server.properties
+echo "finished minecraft server configuration"
 
 ### DBUS API config
-
+echo "configuring dbus api"
 auth_file_path="/etc/dbus-api/auth"
 tls_key_path="/etc/dbus-api/key.pem"
 tls_cert_path="/etc/dbus-api/cert.pem"
@@ -82,3 +86,5 @@ DBUS_API_TLS_ENABLED=true
 DBUS_API_TLS_CERT_PATH=$tls_cert_path
 DBUS_API_TLS_KEY_PATH=$tls_key_path
 EOF
+echo "dbus api configured"
+echo "init script finished"
