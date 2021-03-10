@@ -1,3 +1,7 @@
+locals {
+  cloud_build_account = "serviceAccount:681636924832@cloudbuild.gserviceaccount.com"
+}
+
 module "project-iam-bindings" {
   source = "terraform-google-modules/iam/google//modules/projects_iam"
   projects = [
@@ -6,28 +10,31 @@ module "project-iam-bindings" {
 
   bindings = {
     "roles/iam.serviceAccountCreator" = [
-      "serviceAccount:681636924832@cloudbuild.gserviceaccount.com",
+      local.cloud_build_account,
     ]
     "roles/serviceusage.serviceUsageAdmin" = [
-      "serviceAccount:681636924832@cloudbuild.gserviceaccount.com",
+      local.cloud_build_account,
     ],
     "roles/iam.securityAdmin" = [
-      "serviceAccount:681636924832@cloudbuild.gserviceaccount.com",
+      local.cloud_build_account,
     ],
     "roles/compute.admin" = [
-      "serviceAccount:681636924832@cloudbuild.gserviceaccount.com",
+      local.cloud_build_account,
     ],
     "roles/storage.admin" = [
-      "serviceAccount:681636924832@cloudbuild.gserviceaccount.com",
+      local.cloud_build_account,
     ],
     "roles/iam.serviceAccountUser" = [
-      "serviceAccount:681636924832@cloudbuild.gserviceaccount.com",
+      local.cloud_build_account,
     ],
     "roles/compute.imageUser" = [
       "serviceAccount:952032963423@cloudbuild.gserviceaccount.com",
     ],
     "roles/dns.admin" = [
-      "serviceAccount:681636924832@cloudbuild.gserviceaccount.com",
+      local.cloud_build_account,
+    ]
+    "roles/cloudfunctions.admin" = [
+      local.cloud_build_account
     ]
   }
 }
