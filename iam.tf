@@ -2,6 +2,7 @@ locals {
   cloud_build_account = "serviceAccount:681636924832@cloudbuild.gserviceaccount.com"
 }
 
+# give cloud build service account perms for pubsub
 module "project-iam-bindings" {
   source = "terraform-google-modules/iam/google//modules/projects_iam"
   projects = [
@@ -34,7 +35,10 @@ module "project-iam-bindings" {
       local.cloud_build_account,
     ]
     "roles/cloudfunctions.admin" = [
-      local.cloud_build_account
+      local.cloud_build_account,
+    ],
+    "roles/pubsub.admin" = [
+      local.cloud_build_account,
     ]
   }
 }
