@@ -12,7 +12,7 @@ module "project-iam-bindings" {
   bindings = {
     "roles/iam.serviceAccountCreator" = [
       local.cloud_build_account,
-    ]
+    ],
     "roles/serviceusage.serviceUsageAdmin" = [
       local.cloud_build_account,
     ],
@@ -33,13 +33,13 @@ module "project-iam-bindings" {
     ],
     "roles/dns.admin" = [
       local.cloud_build_account,
-    ]
+    ],
     "roles/cloudfunctions.admin" = [
       local.cloud_build_account,
     ],
     "roles/pubsub.admin" = [
       local.cloud_build_account,
-    ]
+    ],
   }
 }
 
