@@ -12,6 +12,8 @@ module "project-services" {
       api = "pubsub.googleapis.com"
       roles = [
         "roles/pubsub.serviceAgent",
+        "roles/cloudfunctions.invoker",
+        "roles/iam.serviceAccountTokenCreator"
       ]
   }]
 
