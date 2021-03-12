@@ -7,7 +7,16 @@ module "project-services" {
   enable_apis = true
   project_id  = data.google_project.project.project_id
 
+  activate_api_identities = [
+    {
+      api = "pubsub.googleapis.com"
+      roles = [
+        "roles/pubsub.serviceAgent",
+      ]
+  }]
+
   activate_apis = [
+    "pubsub.googleapis.com",
     "compute.googleapis.com",
     "iam.googleapis.com",
     "storage.googleapis.com",
