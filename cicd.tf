@@ -52,3 +52,13 @@ module "paper-image-triggers" {
   ciTagPath         = "ci/release/cloudbuild.yaml"
   ciPullRequestPath = "ci/pull-request/cloudbuild.yaml"
 }
+
+module "discord-notifier-trigger" {
+  source            = "git::https://github.com/LadySerena/terraform-modules.git//github-push-pr-tag-triggers?ref=1.0.0"
+  ownerName         = "LadySerena"
+  project_id        = data.google_project.project.project_id
+  repoName          = "discord-notification-function"
+  ciBranchPushPath  = "ci/branch-push/cloudbuild.yaml"
+  ciTagPath         = "ci/release/cloudbuild.yaml"
+  ciPullRequestPath = "ci/branch-push/cloudbuild.yaml"
+}
