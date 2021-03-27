@@ -11,4 +11,4 @@ steps:
       - '-out'
       - 'tf.plan'
 substitutions:
-  _TERRAFORM_VERSION: 0.14.7
+  _TERRAFORM_VERSION: 0.14.9
