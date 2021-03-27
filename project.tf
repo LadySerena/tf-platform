@@ -1,6 +1,7 @@
 data "google_project" "project" {
 }
 
+# get apis by running gcloud services list --available
 module "project-services" {
   source      = "terraform-google-modules/project-factory/google//modules/project_services"
   version     = "10.2.0"
@@ -25,6 +26,7 @@ module "project-services" {
     "cloudresourcemanager.googleapis.com",
     "cloudbuild.googleapis.com",
     "secretmanager.googleapis.com",
-    "cloudfunctions.googleapis.com"
+    "cloudfunctions.googleapis.com",
+    "run.googleapis.com"
   ]
 }
