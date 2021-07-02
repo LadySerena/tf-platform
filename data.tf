@@ -15,6 +15,7 @@ module "cloud_build_pub_sub" {
       ack_deadline_seconds    = 20
       push_endpoint           = data.google_cloud_run_service.discord_notifier.status[0].url
       enable_message_ordering = true
+      expiration_policy       = ""
     }
   ]
 }
