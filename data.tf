@@ -1,6 +1,5 @@
-data "google_cloud_run_service" "discord_notifier" {
-  name     = "discord-bot"
-  location = "us-central1"
+data "google_cloudfunctions_function" "discord_notifier" {
+  name = "discord-notifier"
 }
 
 module "cloud_build_pub_sub" {
@@ -13,7 +12,7 @@ module "cloud_build_pub_sub" {
     {
       name                    = "push"
       ack_deadline_seconds    = 20
-      push_endpoint           = data.google_cloud_run_service.discord_notifier.status[0].url
+      push_endpoint           = data.google_cloudfunctions_function.discord_notifier.https_trigger_url
       enable_message_ordering = true
       expiration_policy       = ""
     }
