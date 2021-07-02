@@ -13,7 +13,7 @@ module "cloud_build_pub_sub" {
     {
       name                    = "push"
       ack_deadline_seconds    = 20
-      push_endpoint           = data.google_cloud_run_service.discord_notifier.status.url
+      push_endpoint           = data.google_cloud_run_service.discord_notifier.status
       enable_message_ordering = true
     }
   ]
