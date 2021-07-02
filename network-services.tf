@@ -21,3 +21,12 @@ resource "google_dns_record_set" "blog" {
   type = "CNAME"
 }
 
+resource "google_dns_record_set" "blog" {
+  managed_zone = google_dns_managed_zone.default.name
+  name         = "work.${google_dns_managed_zone.default.dns_name}"
+  rrdatas = [
+  "behavioural-pigeon-qrwa62ok4u5p883no18k9pz3.herokudns.com."]
+  ttl  = 300
+  type = "CNAME"
+}
+
