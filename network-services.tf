@@ -21,7 +21,7 @@ resource "google_dns_record_set" "blog" {
   type = "CNAME"
 }
 
-resource "google_dns_record_set" "blog" {
+resource "google_dns_record_set" "polywork" {
   managed_zone = google_dns_managed_zone.default.name
   name         = "work.${google_dns_managed_zone.default.dns_name}"
   rrdatas = [
