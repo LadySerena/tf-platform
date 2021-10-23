@@ -70,3 +70,16 @@ module "discord_notifier_service_account" {
     "${data.google_project.project.project_id}=>roles/secretmanager.secretAccessor",
   ]
 }
+
+module "pi_image_service_account" {
+  source     = "terraform-google-modules/service-accounts/google"
+  version    = "~> 3.0"
+  project_id = data.google_project.project.project_id
+  prefix     = "tel-sa"
+  names = [
+    "pi-image-builder"]
+  project_roles = [
+    "${data.google_project.project.project_id}=>roles/secretmanager.viewer",
+    "${data.google_project.project.project_id}=>roles/secretmanager.secretAccessor",
+  ]
+}

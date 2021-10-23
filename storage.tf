@@ -1,41 +1,19 @@
-resource "google_storage_bucket" "debian-v1" {
-  name                        = "debian-v1.platform.serenacodes.com"
-  location                    = "US"
-  project                     = data.google_project.project.project_id
-  storage_class               = "STANDARD"
+
+resource "google_storage_bucket" "pi-images" {
+  name = "pi-images.serenacodes.com"
+  location = "US"
+  project = data.google_project.project.project_id
   uniform_bucket_level_access = true
 }
 
-module "minecraft-backup" {
-  source     = "terraform-google-modules/cloud-storage/google//modules/simple_bucket"
-  version    = "~> v1.7.2"
-  versioning = false
-  name       = "minecraft-world-backups.serenacodes.com"
-  project_id = data.google_project.project.project_id
-  location   = "us-central1"
-  retention_policy = {
-    is_locked        = false
-    retention_period = 604800
-  }
-  lifecycle_rules = [
-    {
-      action = {
-        type = "Delete"
+resource "google_storage_bucket_iam_member" "pi-image-sa-member" {
+  bucket = google_storage_bucket.pi-images.name
+  role = "roles/storage.objectAdmin"
+  member = module.pi_image_service_account.iam_email
+}
 
-      }
-      condition = {
-        age = 7
-      }
-    }
-  ]
-  iam_members = [
-    {
-      role   = "roles/storage.objectViewer"
-      member = module.service_accounts.iam_email
-    },
-    {
-      role   = "roles/storage.objectCreator"
-      member = module.service_accounts.iam_email
-    },
-  ]
+resource "google_storage_bucket_iam_member" "serena" {
+  bucket = google_storage_bucket.pi-images.name
+  role = "roles/storage.objectAdmin"
+  member = "user:serena.tiede@gmail.com"
 }
