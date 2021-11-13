@@ -81,5 +81,8 @@ module "pi_image_service_account" {
   project_roles = [
     "${data.google_project.project.project_id}=>roles/secretmanager.viewer",
     "${data.google_project.project.project_id}=>roles/secretmanager.secretAccessor",
+    "${data.google_project.project.project_id}=>roles/monitoring.metricWriter",
+    "${data.google_project.project.project_id}=>roles/logging.logWriter",
+
   ]
 }
