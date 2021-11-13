@@ -3,6 +3,11 @@ locals {
   zone    = "us-central1-a"
 }
 
+data "google_compute_image" "pi-image" {
+  family  = "rbi-builder"
+  project = data.google_project.project.name
+}
+
 module "minecraft-vpc" {
   source  = "terraform-google-modules/network/google"
   version = "~> 3.0"
@@ -86,12 +91,12 @@ module "firewall_rules" {
 
 resource "google_compute_instance" "pi-image-builder" {
   name         = "pi-image-builder"
-  machine_type = "e2-medium"
+  machine_type = "e2-standard-2"
   zone         = "us-central1-a"
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-9"
+      image = data.google_compute_image.pi-image.self_link
     }
   }
 
