@@ -83,3 +83,34 @@ module "firewall_rules" {
     }
   ]
 }
+
+resource "google_compute_instance" "pi-image-builder" {
+  name         = "pi-image-builder"
+  machine_type = "e2-medium"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-9"
+    }
+  }
+
+  network_interface {
+    network = module.minecraft-vpc.network_name
+
+    access_config {
+      // Ephemeral public IP
+    }
+  }
+
+  scheduling {
+    preemptible = true
+    automatic_restart = false
+  }
+
+  service_account {
+    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+    email  = module.pi_image_service_account.email
+    scopes = ["storage-rw", "logging-write", "monitoring-write", "trace"]
+  }
+}
