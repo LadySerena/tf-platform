@@ -101,7 +101,7 @@ resource "google_compute_instance" "pi-image-builder" {
   }
 
   network_interface {
-    network = module.minecraft-vpc.network_name
+    subnetwork = element(module.minecraft-vpc.subnets_self_links, 0)
 
     access_config {
       // Ephemeral public IP
