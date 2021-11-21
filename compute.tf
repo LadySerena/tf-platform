@@ -116,6 +116,6 @@ resource "google_compute_instance" "pi-image-builder" {
   service_account {
     # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
     email  = module.pi_image_service_account.email
-    scopes = ["storage-rw", "logging-write", "monitoring-write", "trace"]
+    scopes = ["storage-rw", "logging-write", "monitoring-write", "trace", "compute-rw"]
   }
 }
