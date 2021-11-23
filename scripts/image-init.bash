@@ -19,7 +19,7 @@ sudo tar -xpf "ArchLinuxARM-rpi-aarch64-latest.tar.gz" -C /mnt
 sudo mv /mnt/etc/resolv.conf /mnt/etc/resolv.conf.bak
 sudo cp /etc/resolv.conf /mnt/etc/resolv.conf
 
-cat << EOT > /tmp/install.bash
+cat << INSTALL > /tmp/install.bash
 #!/usr/bin/env bash
 # follow guide here https://disconnected.systems/blog/raspberry-pi-archlinuxarm-setup/
 
@@ -92,7 +92,7 @@ UsePrivilegeSeparation sandbox
 AllowUsers kat
 EOF
 
-EOT
+INSTALL
 sudo chmod 0755 /tmp/install.bash
 sudo cp /tmp/install.bash /mnt/install.bash
 
