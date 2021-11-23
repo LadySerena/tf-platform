@@ -2,6 +2,7 @@
 
 set -eo pipefail
 
+echo 'setting up files for raspberry pi image'
 fallocate -l 3.5G "custom-pi.img"
 sudo losetup --find --show "custom-pi.img"
 sudo parted --script /dev/loop0 mklabel msdos
@@ -18,8 +19,8 @@ md5sum --check ArchLinuxARM-rpi-aarch64-latest.tar.gz.md5
 sudo tar -xpf "ArchLinuxARM-rpi-aarch64-latest.tar.gz" -C /mnt
 sudo mv /mnt/etc/resolv.conf /mnt/etc/resolv.conf.bak
 sudo cp /etc/resolv.conf /mnt/etc/resolv.conf
-
-cat << INSTALL > /tmp/install.bash
+echo 'finished setup now beginning image customization'
+cat << 'INSTALL' > /tmp/install.bash
 #!/usr/bin/env bash
 # follow guide here https://disconnected.systems/blog/raspberry-pi-archlinuxarm-setup/
 
@@ -30,7 +31,9 @@ pacman-key --populate archlinuxarm
 pacman -Syu --noconfirm
 pacman -Sy --noconfirm --needed openssh ca-certificates curl lsb-release zsh wget parted gnupg containerd sudo lm_sensors perl uboot-tools python python-setuptools python-pip
 sed -i 's/mmcblk0p1/sda1/g' /etc/fstab
+cat /etc/fstab
 sed -i 's/MODULES=()/MODULES=(pcie_brcmstb)/g' /etc/mkinitcpio.conf && mkinitcpio -P
+cat /etc/mkinitcpio.conf
 pip install crudini
 crudini --set /etc/systemd/network/en.network Network DNS 8.8.8.8
 crudini --set /etc/systemd/network/en.network DHCPv4 UseDNS false
@@ -41,6 +44,7 @@ crudini --set /etc/systemd/network/en.network DHCPv6 UseDNS false
 # getting unknown parameters error
 # Unknown command line parameters: cgroup_enable=cpuset cgroup_memory=1
 sed -i 's/setenv.*/setenv bootargs console=ttyS1,115200 console=tty0 root=PARTUUID=${uuid} rw rootwait smsc95xx.macaddr="${usbethaddr}" cgroup_enable=memory swapaccount=1 cgroup_memory=1 cgroup_enable=cpuset/g' /boot/boot.txt
+cat /boot/boot.txt
 cd /boot
 /boot/mkscr
 cd ~
@@ -50,6 +54,8 @@ userdel --remove alarm
 groupadd katadmin
 
 useradd -m -G katadmin -s /bin/zsh kat
+chpasswd <<< "kat:$(openssl rand 22 | base64)"
+passwd -S kat
 echo '%katadmin ALL=(ALL) NOPASSWD: ALL' | EDITOR='tee' visudo -f /etc/sudoers.d/katadmin
 sudo -ukat mkdir -p -m=00700 /home/kat/.ssh
 sudo -ukat touch /home/kat/.ssh/authorized_keys
@@ -93,6 +99,7 @@ AllowUsers kat
 EOF
 
 INSTALL
+echo 'finished customizing image now compressing'
 sudo chmod 0755 /tmp/install.bash
 sudo cp /tmp/install.bash /mnt/install.bash
 
@@ -112,7 +119,6 @@ mv "custom-pi.img" "$image_name"
 xz -z -k -9 -e -T 0 -v "$image_name"
 
 gsutil cp "${image_name}.xz" gs://pi-images.serenacodes.com/
-
 NAME=$(curl -X GET http://metadata.google.internal/computeMetadata/v1/instance/name -H 'Metadata-Flavor: Google')
 ZONE=$(curl -X GET http://metadata.google.internal/computeMetadata/v1/instance/zone -H 'Metadata-Flavor: Google')
 gcloud --quiet compute instances delete "$NAME" --zone="$ZONE"

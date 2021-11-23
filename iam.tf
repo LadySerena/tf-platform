@@ -83,6 +83,6 @@ module "pi_image_service_account" {
     "${data.google_project.project.project_id}=>roles/secretmanager.secretAccessor",
     "${data.google_project.project.project_id}=>roles/monitoring.metricWriter",
     "${data.google_project.project.project_id}=>roles/logging.logWriter",
-
+    "${data.google_project.project.project_id}=>roles/compute.instanceAdmin.v1"
   ]
 }
