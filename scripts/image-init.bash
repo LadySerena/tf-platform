@@ -54,7 +54,7 @@ echo '%katadmin ALL=(ALL) NOPASSWD: ALL' | EDITOR='tee' visudo -f /etc/sudoers.d
 sudo -ukat mkdir -p -m=00700 /home/kat/.ssh
 sudo -ukat touch /home/kat/.ssh/authorized_keys
 chmod 0600 /home/kat/.ssh/authorized_keys
-echo 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAAAYjqgPqICXoXilKGX5LZVUBQhfAHIsHXNsJthsEGI pi-image' > /home/kat/.ssh/authorized_keys
+echo 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHRGGe84zs3TxJ8BTbsiVDAsctSf2JF5AS6g/5CyGD2l kat@local-pis' > /home/kat/.ssh/authorized_keys
 cat << EOF > /etc/ssh/sshd_config
 # Supported HostKey algorithms by order of preference.
 HostKey /etc/ssh/ssh_host_ed25519_key
