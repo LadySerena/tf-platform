@@ -89,8 +89,8 @@ module "firewall_rules" {
   ]
 }
 
-resource "google_compute_instance" "pi-image-builder" {
-  name         = "pi-image-builder"
+resource "google_compute_instance" "pi4-image-builder" {
+  name         = "pi4-image-builder"
   machine_type = "e2-standard-2"
   zone         = "us-central1-a"
 
@@ -112,7 +112,38 @@ resource "google_compute_instance" "pi-image-builder" {
     preemptible = true
     automatic_restart = false
   }
-  metadata_startup_script = file("./scripts/image-init.bash")
+  metadata_startup_script = file("./scripts/pi4-image.bash")
+  service_account {
+    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+    email  = module.pi_image_service_account.email
+    scopes = ["storage-rw", "logging-write", "monitoring-write", "trace", "compute-rw"]
+  }
+}
+
+resource "google_compute_instance" "pi3-image-builder" {
+  name         = "pi3-image-builder"
+  machine_type = "e2-standard-2"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.pi-image.self_link
+    }
+  }
+
+  network_interface {
+    subnetwork = element(module.minecraft-vpc.subnets_self_links, 0)
+
+    access_config {
+      // Ephemeral public IP
+    }
+  }
+
+  scheduling {
+    preemptible = true
+    automatic_restart = false
+  }
+  metadata_startup_script = file("./scripts/pi3-image.bash")
   service_account {
     # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
     email  = module.pi_image_service_account.email

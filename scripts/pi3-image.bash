@@ -29,7 +29,7 @@ set -eo pipefail
 pacman-key --init
 pacman-key --populate archlinuxarm
 pacman -Syu --noconfirm
-pacman -Sy --noconfirm --needed openssh ca-certificates curl lsb-release zsh wget parted gnupg containerd sudo lm_sensors perl uboot-tools python python-setuptools python-pip htop
+pacman -Sy --noconfirm --needed openssh ca-certificates curl lsb-release zsh wget parted gnupg sudo lm_sensors perl uboot-tools python python-setuptools python-pip htop
 
 # set fstab file to boot off of the ssd
 sed -i 's/mmcblk0p1/sda1/g' /etc/fstab
@@ -42,14 +42,21 @@ cat /etc/mkinitcpio.conf
 pip install crudini
 # https://wiki.archlinux.org/title/Systemd-networkd#Configuration_files
 crudini --set /etc/systemd/network/en.network Network DNS 8.8.8.8
+crudini --set /etc/systemd/network/en.network Network Domains ~.
 crudini --set /etc/systemd/network/en.network DHCPv4 UseDNS false
 crudini --set /etc/systemd/network/en.network DHCPv6 UseDNS false
 
 crudini --set /etc/systemd/network/eth.network Network DNS 8.8.8.8
+crudini --set /etc/systemd/network/en.network Network Domains ~.
 crudini --set /etc/systemd/network/eth.network DHCPv4 UseDNS false
 crudini --set /etc/systemd/network/eth.network DHCPv6 UseDNS false
 # set journald to log to memory
 crudini --set /etc/systemd/journald.conf Journal Storage volatile
+# drop in dns configuration
+mkdir /etc/systemd/resolved.conf.d
+touch /etc/systemd/resolved.conf.d/google_dns.conf
+crudini --set /etc/systemd/network/eth.network Resolve DNS 8.8.8.8
+crudini --set /etc/systemd/network/en.network Resolve Domains ~.
 
 # set the bootargs to console=ttyS1,115200 console=tty0 root=PARTUUID=${uuid} rw rootwait smsc95xx.macaddr="${usbethaddr}" cgroup_enable=memory swapaccount=1 cgroup_memory=1 cgroup_enable=cpuset in /boot/boot.txt and run /boot/mkscr
 # getting unknown parameters error
@@ -116,7 +123,7 @@ sudo cp /tmp/install.bash /mnt/install.bash
 
 sudo systemd-nspawn -D /mnt /install.bash
 
-image_name="arch-linux-arm-$(date "+%F-%s").img"
+image_name="arch-linux-pi3-arm-$(date "+%F-%s").img"
 
 sudo rm /mnt/etc/resolv.conf
 sudo mv /mnt/etc/resolv.conf.bak /mnt/etc/resolv.conf
