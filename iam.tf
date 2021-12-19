@@ -77,7 +77,7 @@ module "pi_image_service_account" {
   project_id = data.google_project.project.project_id
   prefix     = "tel-sa"
   names = [
-    "pi-image-builder"]
+  "pi-image-builder"]
   project_roles = [
     "${data.google_project.project.project_id}=>roles/secretmanager.viewer",
     "${data.google_project.project.project_id}=>roles/secretmanager.secretAccessor",

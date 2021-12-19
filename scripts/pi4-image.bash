@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -eo pipefail
+set -exo pipefail
 
 echo 'setting up files for raspberry pi image'
 fallocate -l 3.5G "custom-pi.img"
@@ -29,7 +29,7 @@ set -eo pipefail
 pacman-key --init
 pacman-key --populate archlinuxarm
 pacman -Syu --noconfirm
-pacman -Sy --noconfirm --needed openssh ca-certificates curl lsb-release zsh wget parted gnupg sudo lm_sensors perl uboot-tools python python-setuptools python-pip htop
+pacman -Sy --noconfirm --needed openssh ca-certificates curl lsb-release zsh wget parted gnupg sudo lm_sensors perl uboot-tools python python-setuptools python-pip htop cri-o=1.22.1-1 crictl
 
 # set fstab file to boot off of the ssd
 sed -i 's/mmcblk0p1/sda1/g' /etc/fstab
@@ -117,7 +117,6 @@ AllowUsers kat
 EOF
 
 INSTALL
-echo 'finished customizing image now compressing'
 sudo chmod 0755 /tmp/install.bash
 sudo cp /tmp/install.bash /mnt/install.bash
 

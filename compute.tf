@@ -46,7 +46,8 @@ module "firewall_rules" {
       description = "allow ssh via identity aware proxy see here for range https://cloud.google.com/iap/docs/using-tcp-forwarding#create-firewall-rule"
       direction   = "INGRESS"
       ranges = [
-      "35.235.240.0/20"]
+        "35.235.240.0/20"
+      ]
       source_tags             = null
       source_service_accounts = null
       target_tags             = null
@@ -55,8 +56,10 @@ module "firewall_rules" {
         {
           protocol = "tcp"
           ports = [
-          "22"]
-      }]
+            "22"
+          ]
+        }
+      ]
       deny       = []
       log_config = null
     },
@@ -66,7 +69,8 @@ module "firewall_rules" {
       description = "allows friends on public internet to access minecraft"
       direction   = "INGRESS"
       ranges = [
-      "0.0.0.0/0"]
+        "0.0.0.0/0"
+      ]
       source_tags             = null
       source_service_accounts = null
       target_tags             = null
@@ -75,12 +79,14 @@ module "firewall_rules" {
         {
           protocol = "tcp"
           ports = [
-          "25565"]
+            "25565"
+          ]
         },
         {
           protocol = "udp"
           ports = [
-          "25565"]
+            "25565"
+          ]
         }
       ]
       deny       = []
@@ -109,7 +115,7 @@ resource "google_compute_instance" "pi4-image-builder" {
   }
 
   scheduling {
-    preemptible = true
+    preemptible       = true
     automatic_restart = false
   }
   metadata_startup_script = file("./scripts/pi4-image.bash")
@@ -140,10 +146,41 @@ resource "google_compute_instance" "pi3-image-builder" {
   }
 
   scheduling {
-    preemptible = true
+    preemptible       = true
     automatic_restart = false
   }
   metadata_startup_script = file("./scripts/pi3-image.bash")
+  service_account {
+    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+    email  = module.pi_image_service_account.email
+    scopes = ["storage-rw", "logging-write", "monitoring-write", "trace", "compute-rw"]
+  }
+}
+
+resource "google_compute_instance" "pi4-k8s-image-builder" {
+  name         = "pi4-k8s-image-builder"
+  machine_type = "e2-standard-2"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.pi-image.self_link
+    }
+  }
+
+  network_interface {
+    subnetwork = element(module.minecraft-vpc.subnets_self_links, 0)
+
+    access_config {
+      // Ephemeral public IP
+    }
+  }
+
+  scheduling {
+    preemptible       = true
+    automatic_restart = false
+  }
+  metadata_startup_script = file("./scripts/install-k8s.bash")
   service_account {
     # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
     email  = module.pi_image_service_account.email
