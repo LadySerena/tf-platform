@@ -131,7 +131,7 @@ mv "${image_name}.img" "$k8s_image_name"
 
 xz -z -k -9 -e -T 0 -v "$k8s_image_name"
 
-gsutil cp "${k8s_image_name}.xz" gs://pi-images.serenacodes.com/
+gsutil cp "${k8s_image_name}.xz" gs://pi-images.serenacodes.com/pi4-k8s/
 NAME=$(curl -X GET http://metadata.google.internal/computeMetadata/v1/instance/name -H 'Metadata-Flavor: Google')
 ZONE=$(curl -X GET http://metadata.google.internal/computeMetadata/v1/instance/zone -H 'Metadata-Flavor: Google')
 gcloud --quiet compute instances delete "$NAME" --zone="$ZONE"

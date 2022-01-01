@@ -41,63 +41,63 @@ module "firewall_rules" {
 
   rules = [
     {
-      name        = "allow-ssh-iap-ingress"
-      priority    = 1000
-      description = "allow ssh via identity aware proxy see here for range https://cloud.google.com/iap/docs/using-tcp-forwarding#create-firewall-rule"
-      direction   = "INGRESS"
-      ranges = [
+      name                    = "allow-ssh-iap-ingress"
+      priority                = 1000
+      description             = "allow ssh via identity aware proxy see here for range https://cloud.google.com/iap/docs/using-tcp-forwarding#create-firewall-rule"
+      direction               = "INGRESS"
+      ranges                  = [
         "35.235.240.0/20"
       ]
       source_tags             = null
       source_service_accounts = null
       target_tags             = null
       target_service_accounts = null
-      allow = [
+      allow                   = [
         {
           protocol = "tcp"
-          ports = [
+          ports    = [
             "22"
           ]
         }
       ]
-      deny       = []
-      log_config = null
+      deny                    = []
+      log_config              = null
     },
     {
-      name        = "allow-minecraft"
-      priority    = 1001
-      description = "allows friends on public internet to access minecraft"
-      direction   = "INGRESS"
-      ranges = [
+      name                    = "allow-minecraft"
+      priority                = 1001
+      description             = "allows friends on public internet to access minecraft"
+      direction               = "INGRESS"
+      ranges                  = [
         "0.0.0.0/0"
       ]
       source_tags             = null
       source_service_accounts = null
       target_tags             = null
       target_service_accounts = null
-      allow = [
+      allow                   = [
         {
           protocol = "tcp"
-          ports = [
+          ports    = [
             "25565"
           ]
         },
         {
           protocol = "udp"
-          ports = [
+          ports    = [
             "25565"
           ]
         }
       ]
-      deny       = []
-      log_config = null
+      deny                    = []
+      log_config              = null
     }
   ]
 }
 
-resource "google_compute_instance" "pi4-image-builder" {
-  name         = "pi4-image-builder"
-  machine_type = "e2-standard-2"
+resource "google_compute_instance" "ubuntu-base-image-builder" {
+  name         = "ubuntu-base-image-builder"
+  machine_type = "e2-standard-4"
   zone         = "us-central1-a"
 
   boot_disk {
@@ -118,69 +118,7 @@ resource "google_compute_instance" "pi4-image-builder" {
     preemptible       = true
     automatic_restart = false
   }
-  metadata_startup_script = file("./scripts/pi4-image.bash")
-  service_account {
-    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
-    email  = module.pi_image_service_account.email
-    scopes = ["storage-rw", "logging-write", "monitoring-write", "trace", "compute-rw"]
-  }
-}
-
-resource "google_compute_instance" "pi3-image-builder" {
-  name         = "pi3-image-builder"
-  machine_type = "e2-standard-2"
-  zone         = "us-central1-a"
-
-  boot_disk {
-    initialize_params {
-      image = data.google_compute_image.pi-image.self_link
-    }
-  }
-
-  network_interface {
-    subnetwork = element(module.minecraft-vpc.subnets_self_links, 0)
-
-    access_config {
-      // Ephemeral public IP
-    }
-  }
-
-  scheduling {
-    preemptible       = true
-    automatic_restart = false
-  }
-  metadata_startup_script = file("./scripts/pi3-image.bash")
-  service_account {
-    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
-    email  = module.pi_image_service_account.email
-    scopes = ["storage-rw", "logging-write", "monitoring-write", "trace", "compute-rw"]
-  }
-}
-
-resource "google_compute_instance" "pi4-k8s-image-builder" {
-  name         = "pi4-k8s-image-builder"
-  machine_type = "e2-standard-2"
-  zone         = "us-central1-a"
-
-  boot_disk {
-    initialize_params {
-      image = data.google_compute_image.pi-image.self_link
-    }
-  }
-
-  network_interface {
-    subnetwork = element(module.minecraft-vpc.subnets_self_links, 0)
-
-    access_config {
-      // Ephemeral public IP
-    }
-  }
-
-  scheduling {
-    preemptible       = true
-    automatic_restart = false
-  }
-  metadata_startup_script = file("./scripts/install-k8s.bash")
+  metadata_startup_script = file("./scripts/ubuntu-20-04.bash")
   service_account {
     # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
     email  = module.pi_image_service_account.email

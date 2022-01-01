@@ -13,4 +13,4 @@ steps:
       - '-auto-approve'
       - 'tf.plan'
 substitutions:
-  _TERRAFORM_VERSION: 1.0.5
+  _TERRAFORM_VERSION: 1.1.2
