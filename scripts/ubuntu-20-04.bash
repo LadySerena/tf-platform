@@ -9,6 +9,11 @@ xz -d ubuntu-20.04.3-preinstalled-server-arm64+raspi.img.xz
 
 sudo losetup -Pf ubuntu-20.04.3-preinstalled-server-arm64+raspi.img
 
+sudo truncate -c -s +1000M ubuntu-20.04.3-preinstalled-server-arm64+raspi.img
+sudo parted /dev/loop0 resizepart 2 4000MB -s
+sudo e2fsck -f /dev/loop0p2
+sudo resize2fs /dev/loop0p2
+
 sudo mount /dev/loop0p2 /mnt/
 sudo mount /dev/loop0p1 /mnt/boot/firmware
 
@@ -407,9 +412,6 @@ kernel-nonsense
 k8s-modules
 containerd-modules
 
-
-
-
 sudo apt-get update -y
 sudo apt-get upgrade -y
 sudo apt-get install -y openssh-server ca-certificates curl lsb-release wget gnupg sudo lm-sensors perl htop crudini bat
@@ -426,8 +428,8 @@ configure-containerd
 sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
 echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
-sudo apt-get update
-sudo apt-get install -y kubelet kubeadm kubectl
+sudo apt-get update -y
+sudo apt-get install -y kubelet kubeadm kubectl nftables
 sudo apt-mark hold kubelet kubeadm kubectl
 
 sudo apt-get remove -y unattended-upgrades snapd
