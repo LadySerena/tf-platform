@@ -21,10 +21,10 @@ cat << 'INSTALL' > /tmp/install.bash
 
 set -eo pipefail
 
-
 function kernel-nonsense() {
-  zcat -qf "/boot/firmware/vmlinuz" > "/boot/firmware/vmlinux"
-  cat <<'EOF' | tee /boot/usercfg.txt
+  zcat -qf "/boot/firmware/vmlinuz" >"/boot/firmware/vmlinux"
+
+  cat <<'EOF' | tee /boot/firmware/usercfg.txt
 # Place "config.txt" changes (dtparam, dtoverlay, disable_overscan, etc.) in
 # this file. Please refer to the README file for a description of the various
 # configuration files on the boot partition.
@@ -96,7 +96,6 @@ function cloud-init-fix() {
 users:
   - name: kat
     gecos: my user
-    homedir: <home directory>
     groups: [ adm, audio, cdrom, dialout, dip, floppy, lxd, netdev, plugdev, sudo, video ]
     sudo: [ "ALL=(ALL) NOPASSWD:ALL" ]
     shell: /bin/bash
@@ -239,15 +238,14 @@ EOF
 
 }
 
-
 kernel-nonsense
 
 sudo apt-get update -y
 sudo apt-get upgrade -y
 sudo apt-get install -y openssh-server ca-certificates curl lsb-release wget gnupg sudo lm-sensors perl htop crudini
+sudo apt-get remove -y unattended-upgrades snapd
 
 cloud-init-fix
-
 
 INSTALL
 
