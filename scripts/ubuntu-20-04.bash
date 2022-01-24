@@ -407,6 +407,14 @@ oom_score = 0
 EOF
 }
 
+function cilium-sysctl() {
+#  https://github.com/cilium/cilium/issues/10645
+  cat <<EOF | tee /etc/sysctl.d/99-override_cilium_rp_filter.conf
+net.ipv4.conf.lxc*.rp_filter = 0
+net.ipv4.conf.all.rp_filter = 0
+net.ipv4.conf.default.rp_filter = 0
+EOF
+}
 
 kernel-nonsense
 k8s-modules
@@ -437,6 +445,12 @@ apt-get remove -y unattended-upgrades snapd
 
 cloud-init-fix
 
+curl https://baltocdn.com/helm/signing.asc | apt-key add -
+echo "deb https://baltocdn.com/helm/stable/debian/ all main" | tee /etc/apt/sources.list.d/helm-stable-debian.list
+apt-get update
+sudo apt-get install helm -y
+
+cilium-sysctl
 
 INSTALL
 
