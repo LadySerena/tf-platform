@@ -244,23 +244,23 @@ EOF
 }
 
 function k8s-modules() {
-  cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
+  cat <<EOF | tee /etc/modules-load.d/k8s.conf
 br_netfilter
 EOF
 
-  cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
+  cat <<EOF | tee /etc/sysctl.d/k8s.conf
 net.bridge.bridge-nf-call-ip6tables = 1
 net.bridge.bridge-nf-call-iptables = 1
 EOF
 }
 
 function containerd-modules() {
-  cat <<EOF | sudo tee /etc/modules-load.d/containerd.conf
+  cat <<EOF | tee /etc/modules-load.d/containerd.conf
   overlay
   br_netfilter
 EOF
 
-  cat <<EOF | sudo tee /etc/sysctl.d/99-kubernetes-cri.conf
+  cat <<EOF | tee /etc/sysctl.d/99-kubernetes-cri.conf
 net.bridge.bridge-nf-call-iptables  = 1
 net.ipv4.ip_forward                 = 1
 net.bridge.bridge-nf-call-ip6tables = 1
@@ -269,7 +269,7 @@ EOF
 }
 
 function configure-containerd() {
-  cat <<EOF | sudo tee /etc/containerd/config.toml
+  cat <<EOF | tee /etc/containerd/config.toml
 version = 2
 root = "/var/lib/containerd"
 state = "/run/containerd"
@@ -412,28 +412,28 @@ kernel-nonsense
 k8s-modules
 containerd-modules
 
-sudo apt-get update -y
-sudo apt-get upgrade -y
-sudo apt-get install -y openssh-server ca-certificates curl lsb-release wget gnupg sudo lm-sensors perl htop crudini bat
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+apt-get update
+apt-get install -y openssh-server ca-certificates curl lsb-release wget gnupg sudo lm-sensors perl htop crudini bat apt-transport-https nftables
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
 echo \
   "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
-  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-sudo apt-get update
-sudo apt-get install -y containerd.io
+apt-get update
+apt-get install -y containerd.io
 
 configure-containerd
 
-sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
-echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | tee /etc/apt/sources.list.d/kubernetes.list
 
-sudo apt-get update -y
-sudo apt-get update -y
-sudo apt-get install -y kubelet kubeadm kubectl nftables
-sudo apt-mark hold kubelet kubeadm kubectl
+apt-get update
 
-sudo apt-get remove -y unattended-upgrades snapd
+apt-get install -y kubelet kubeadm kubectl
+
+apt-mark hold kubelet kubeadm kubectl
+
+apt-get remove -y unattended-upgrades snapd
 
 cloud-init-fix
 
