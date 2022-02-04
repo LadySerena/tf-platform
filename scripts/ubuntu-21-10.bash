@@ -7,18 +7,18 @@ set -exo pipefail
 wget https://cdimage.ubuntu.com/releases/21.10/release/ubuntu-21.10-preinstalled-server-arm64+raspi.img.xz
 echo "126f940d3b270a6c1fc5a183ac8a3d193805fead4f517296a7df9d3e7d691a03 *ubuntu-21.10-preinstalled-server-arm64+raspi.img.xz" | shasum -a 256 --check
 
-xz -d ubuntu-21.10-preinstalled-server-arm64+raspi.img.xz
+xz -dk ubuntu-21.10-preinstalled-server-arm64+raspi.img.xz
 
 sudo losetup -Pf ubuntu-21.10-preinstalled-server-arm64+raspi.img
 
-sudo truncate -c -s +1000M ubuntu-21.10-preinstalled-server-arm64+raspi.img
+sudo truncate -c -s +2048M ubuntu-21.10-preinstalled-server-arm64+raspi.img
 IN=$(sudo parted /dev/loop0 print -m -s | tail -n 1)
 # shellcheck disable=SC2206
 # this is intentional splitting my dear linter!
 arrIN=(${IN//:/ })
 
 sudo parted /dev/loop0 resizepart 2 "${arrIN[2]}" -s
-sudo e2fsck -f /dev/loop0p2
+sudo e2fsck -p -f /dev/loop0p2
 sudo resize2fs /dev/loop0p2
 
 sudo mount /dev/loop0p2 /mnt/
@@ -35,64 +35,9 @@ cat << 'INSTALL' > /tmp/install.bash
 set -exo pipefail
 
 function kernel-nonsense() {
-  zcat -qf "/boot/firmware/vmlinuz" >"/boot/firmware/vmlinux"
-
-  cat <<'EOF' | tee /boot/firmware/usercfg.txt
-# Place "config.txt" changes (dtparam, dtoverlay, disable_overscan, etc.) in
-# this file. Please refer to the README file for a description of the various
-# configuration files on the boot partition.
-[pi4]
-max_framebuffers=2
-dtoverlay=vc4-fkms-v3d
-boot_delay
-kernel=vmlinux
-initramfs initrd.img followkernel
+  cat <<'EOF' | tee /boot/firmware/cmdline.txt
+dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=LABEL=writable rootfstype=ext4 elevator=deadline rootwait fixrtc quiet splash cgroup_enable=memory swapaccount=1 cgroup_memory=1 cgroup_enable=cpuset
 EOF
-
-  cat <<'EOF' | tee /boot/auto_decompress_kernel
-#!/bin/bash -e
-# auto_decompress_kernel script
-BTPATH=/boot/firmware
-CKPATH=$BTPATH/vmlinuz
-DKPATH=$BTPATH/vmlinux
-# Check if compression needs to be done.
-if [ -e $BTPATH/check.md5 ]; then
-   if md5sum --status --ignore-missing -c $BTPATH/check.md5; then
-      echo -e "\e[32mFiles have not changed, Decompression not needed\e[0m"
-      exit 0
-   else
-      echo -e "\e[31mHash failed, kernel will be compressed\e[0m"
-   fi
-fi
-# Backup the old decompressed kernel
-mv $DKPATH $DKPATH.bak
-if [ ! $? == 0 ]; then
-   echo -e "\e[31mDECOMPRESSED KERNEL BACKUP FAILED!\e[0m"
-   exit 1
-else
-   echo -e "\e[32mDecompressed kernel backup was successful\e[0m"
-fi
-# Decompress the new kernel
-echo "Decompressing kernel: "$CKPATH".............."
-zcat -qf $CKPATH > $DKPATH
-if [ ! $? == 0 ]; then
-   echo -e "\e[31mKERNEL FAILED TO DECOMPRESS!\e[0m"
-   exit 1
-else
-   echo -e "\e[32mKernel Decompressed Succesfully\e[0m"
-fi
-# Hash the new kernel for checking
-md5sum $CKPATH $DKPATH > $BTPATH/check.md5
-if [ ! $? == 0 ]; then
-   echo -e "\e[31mMD5 GENERATION FAILED!\e[0m"
-else
-   echo -e "\e[32mMD5 generated Succesfully\e[0m"
-fi
-exit 0
-EOF
-
-  echo 'DPkg::Post-Invoke {"/bin/bash /boot/auto_decompress_kernel"; };' | tee /etc/apt/apt.conf.d/999_decompress_rpi_kernel
-
 }
 
 function cloud-init-fix() {
@@ -254,6 +199,7 @@ EOF
 function k8s-modules() {
   cat <<EOF | tee /etc/modules-load.d/k8s.conf
 br_netfilter
+veth
 EOF
 
   cat <<EOF | tee /etc/sysctl.d/k8s.conf
@@ -425,7 +371,8 @@ k8s-modules
 containerd-modules
 
 apt-get update
-apt-get install -y openssh-server ca-certificates curl lsb-release wget gnupg sudo lm-sensors perl htop crudini bat apt-transport-https nftables
+apt-get install -y openssh-server ca-certificates curl lsb-release wget gnupg sudo lm-sensors perl htop crudini bat \
+  apt-transport-https nftables linux-modules-extra-raspi
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
 echo \
   "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
@@ -456,7 +403,14 @@ sudo apt-get install helm -y
 
 cilium-sysctl
 
+curl -L --remote-name-all https://github.com/cilium/cilium-cli/releases/latest/download/cilium-linux-arm64.tar.gz{,.sha256sum}
+sha256sum --check cilium-linux-arm64.tar.gz.sha256sum
+sudo tar xzvfC cilium-linux-arm64.tar.gz /usr/local/bin
+rm cilium-linux-arm64.tar.gz{,.sha256sum}
+
 INSTALL
+
+# TODO install bpftools via linux-tools-common and stern
 
 sudo chmod 0755 /tmp/install.bash
 sudo cp /tmp/install.bash /mnt/install.bash
