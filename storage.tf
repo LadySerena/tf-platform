@@ -6,7 +6,7 @@ resource "google_storage_bucket" "pi-images" {
 }
 
 resource "google_storage_bucket" "pi-keys" {
-  name                        = "pi-pub-keys.serenacodes.com"
+  name                        = "pi-host-keys.serenacodes.com"
   location                    = "US"
   project                     = data.google_project.project.project_id
   uniform_bucket_level_access = true
