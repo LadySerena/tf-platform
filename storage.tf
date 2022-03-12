@@ -10,6 +10,7 @@ resource "google_storage_bucket" "pi-keys" {
   location                    = "US"
   project                     = data.google_project.project.project_id
   uniform_bucket_level_access = true
+  force_destroy               = true
 }
 
 resource "google_storage_bucket_iam_member" "pi-image-sa-member" {
