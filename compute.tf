@@ -99,7 +99,7 @@ resource "google_compute_instance" "ubuntu-base-image-builder" {
   name         = "ubuntu-base-image-builder"
   machine_type = "e2-standard-4"
   zone         = "us-central1-a"
-  count        = 0
+  count        = 1
 
   boot_disk {
     initialize_params {
@@ -119,7 +119,7 @@ resource "google_compute_instance" "ubuntu-base-image-builder" {
     preemptible       = true
     automatic_restart = false
   }
-  metadata_startup_script = file("./scripts/ubuntu-20-04.bash")
+  metadata_startup_script = file("./scripts/ubuntu-22-04-alpha.bash")
   service_account {
     # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
     email  = module.pi_image_service_account.email
