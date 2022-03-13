@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+set -exo pipefail
 # fucking hell this is jank af
 
 wget https://cdimage.ubuntu.com/ubuntu-server/daily-preinstalled/current/jammy-preinstalled-server-arm64+raspi.img.xz
@@ -30,64 +31,9 @@ cat << 'INSTALL' > /tmp/install.bash
 set -eo pipefail
 
 function kernel-nonsense() {
-  zcat -qf "/boot/firmware/vmlinuz" >"/boot/firmware/vmlinux"
-
-  cat <<'EOF' | tee /boot/firmware/usercfg.txt
-# Place "config.txt" changes (dtparam, dtoverlay, disable_overscan, etc.) in
-# this file. Please refer to the README file for a description of the various
-# configuration files on the boot partition.
-[pi4]
-max_framebuffers=2
-dtoverlay=vc4-fkms-v3d
-boot_delay
-kernel=vmlinux
-initramfs initrd.img followkernel
+  cat <<'EOF' | tee /boot/firmware/cmdline.txt
+dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=LABEL=writable rootfstype=ext4 elevator=deadline rootwait fixrtc quiet splash cgroup_enable=memory swapaccount=1 cgroup_memory=1 cgroup_enable=cpuset
 EOF
-
-  cat <<'EOF' | tee /boot/auto_decompress_kernel
-#!/bin/bash -e
-# auto_decompress_kernel script
-BTPATH=/boot/firmware
-CKPATH=$BTPATH/vmlinuz
-DKPATH=$BTPATH/vmlinux
-# Check if compression needs to be done.
-if [ -e $BTPATH/check.md5 ]; then
-   if md5sum --status --ignore-missing -c $BTPATH/check.md5; then
-      echo -e "\e[32mFiles have not changed, Decompression not needed\e[0m"
-      exit 0
-   else
-      echo -e "\e[31mHash failed, kernel will be compressed\e[0m"
-   fi
-fi
-# Backup the old decompressed kernel
-mv $DKPATH $DKPATH.bak
-if [ ! $? == 0 ]; then
-   echo -e "\e[31mDECOMPRESSED KERNEL BACKUP FAILED!\e[0m"
-   exit 1
-else
-   echo -e "\e[32mDecompressed kernel backup was successful\e[0m"
-fi
-# Decompress the new kernel
-echo "Decompressing kernel: "$CKPATH".............."
-zcat -qf $CKPATH > $DKPATH
-if [ ! $? == 0 ]; then
-   echo -e "\e[31mKERNEL FAILED TO DECOMPRESS!\e[0m"
-   exit 1
-else
-   echo -e "\e[32mKernel Decompressed Succesfully\e[0m"
-fi
-# Hash the new kernel for checking
-md5sum $CKPATH $DKPATH > $BTPATH/check.md5
-if [ ! $? == 0 ]; then
-   echo -e "\e[31mMD5 GENERATION FAILED!\e[0m"
-else
-   echo -e "\e[32mMD5 generated Succesfully\e[0m"
-fi
-exit 0
-EOF
-
-  echo 'DPkg::Post-Invoke {"/bin/bash /boot/auto_decompress_kernel"; };' | tee /etc/apt/apt.conf.d/999_decompress_rpi_kernel
-
 }
 
 function cloud-init-fix() {
