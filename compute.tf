@@ -99,6 +99,7 @@ resource "google_compute_instance" "ubuntu-base-image-builder" {
   name         = "ubuntu-base-image-builder"
   machine_type = "e2-standard-4"
   zone         = "us-central1-a"
+  count        = 0
 
   boot_disk {
     initialize_params {
