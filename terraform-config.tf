@@ -2,7 +2,7 @@ terraform {
   backend "gcs" {
     bucket = "tel-platform-state.serenacodes.com"
   }
-  required_version = "1.1.2"
+  required_version = "1.1.6"
   required_providers {
     google = {
       source  = "hashicorp/google"
