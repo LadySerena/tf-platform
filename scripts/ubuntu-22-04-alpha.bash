@@ -13,10 +13,10 @@ xz -d "$ubuntu_image_name_archive"
 
 sudo losetup -Pf "$ubuntu_image_name_raw"
 
-sudo truncate -c -s +1000M "$ubuntu_image_name_raw"
-sudo parted /dev/loop0 resizepart 2 4000MB -s
-sudo e2fsck -f /dev/loop0p2
-sudo resize2fs /dev/loop0p2
+#sudo truncate -c -s +1000M "$ubuntu_image_name_raw"
+#sudo parted /dev/loop0 resizepart 2 4000MB -s
+#sudo e2fsck -f /dev/loop0p2
+#sudo resize2fs /dev/loop0p2
 
 sudo mount /dev/loop0p2 /mnt/
 sudo mount /dev/loop0p1 /mnt/boot/firmware
