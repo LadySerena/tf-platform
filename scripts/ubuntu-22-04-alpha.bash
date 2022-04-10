@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-set -exo pipefail
-# fucking hell this is jank af
+set -ex pipefail
 
 wget https://cdimage.ubuntu.com/ubuntu-server/daily-preinstalled/current/jammy-preinstalled-server-arm64+raspi.img.xz
 echo "abacb3f5bbb5d72a25aff8f8e5d2f440b4c50c6a3b00e073e9aa5bae6d5a309e *jammy-preinstalled-server-arm64+raspi.img.xz" | shasum -a 256 --check
