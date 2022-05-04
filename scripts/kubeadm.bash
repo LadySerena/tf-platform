@@ -2,7 +2,7 @@
 
 set -exo pipefail
 
-sudo kubeadm init --pod-network-cidr 10.0.128.0/17 --service-cidr 10.1.0.0/17 --skip-phases=addon/kube-proxy
+sudo kubeadm init --pod-network-cidr 10.0.128.0/17 --service-cidr 10.1.0.0/17 --skip-phases=addon/kube-proxy --control-plane-endpoint kubernetes-control.internal.serenacodes.com:6443 --upload-certs
 mkdir -p "$HOME/.kube"
 sudo cp -i /etc/kubernetes/admin.conf "$HOME/.kube/config"
 sudo chown "$(id -u)":"$(id -g)" "$HOME/.kube/config"
@@ -14,27 +14,11 @@ helm install cilium cilium/cilium --version 1.11.1 \
     --set kubeProxyReplacement=strict \
     --set tunnel=geneve \
     --set ipam.operator.clusterPoolIPv4PodCIDRList={10.0.128.0/17} \
-    --set k8sServiceHost=10.0.0.19 \
+    --set k8sServiceHost=kubernetes-control.internal.serenacodes.com \
     --set k8sServicePort=6443 \
     --set hubble.relay.enabled=true \
-    --set hubble.ui.enabled=true
+    --set hubble.ui.enabled=true \
+    --set hubble.metrics.enabled="{dns,drop,tcp,flow,icmp,http}"
 
-helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
-
-helm upgrade --namespace kube-system --install metrics-server metrics-server/metrics-server \
-    --set replicas=2 \
-    --set args=\{"--kubelet-insecure-tls"\}
-
-git clone https://github.com/prometheus-operator/kube-prometheus.git
-
-cd kube-prometheus
-
-kubectl create -f manifests/setup
-until kubectl get servicemonitors --all-namespaces ; do date; sleep 1; echo ""; done
-kubectl create -f manifests/
-
-helm upgrade cilium cilium/cilium --version 1.11.1 \
-   --namespace kube-system \
-   --reuse-values \
-   --set hubble.metrics.serviceMonitor.enabled=true \
-   --set hubble.metrics.enabled="{dns,drop,tcp,flow,icmp,http}"
+# use ~1 to be / see http://jsonpatch.com/#json-pointer
+kubectl patch clusterrole edit --type=json -p '[{"op": "add", "path": "/metadata/labels/rbac.serenacodes.com~1aggregate-to-cluster-admin", "value":"true"}]'

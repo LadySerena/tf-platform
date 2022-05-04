@@ -75,8 +75,8 @@ ecdsa_private=$ecdsa_private \
 dsa_public=$dsa_public \
 dsa_private=$dsa_private \
 host=$host \
-yq \
-'. + {"ssh_deletekeys": false,
+yq --null-input \
+'{"ssh_deletekeys": false,
   "ssh_keys": {
     "dsa_private": strenv(dsa_private),
     "dsa_public": strenv(dsa_public),
@@ -88,12 +88,9 @@ yq \
     "rsa_private": strenv(rsa_private)
   },
   "hostname": strenv(host)
-}' \
-/mnt/etc/cloud/cloud.cfg > /tmp/cloud.cfg
+}' > /tmp/host-keys.cfg
 
-sudo mv /tmp/cloud.cfg /mnt/etc/cloud/cloud.cfg
-
-bat --paging=never /mnt/etc/cloud/cloud.cfg
+sudo mv /tmp/host-keys.cfg /mnt/etc/cloud/cloud.cfg.d/08_host_keys.cfg
 
 sudo umount /mnt/boot/firmware
 

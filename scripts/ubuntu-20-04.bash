@@ -1,17 +1,26 @@
 #!/usr/bin/env bash
 
-# fucking hell this is jank af
+set -ex pipefail
 
-wget https://cdimage.ubuntu.com/releases/20.04.3/release/ubuntu-20.04.3-preinstalled-server-arm64+raspi.img.xz
-echo "7e405f473d8a9e3254cd702edaeecd5509a85cde1e9e99e120f6c82156c6958f *ubuntu-20.04.3-preinstalled-server-arm64+raspi.img.xz" | shasum -a 256 --check
+ubuntu_image_name_base="ubuntu-20.04.4-preinstalled-server-arm64+raspi"
+ubuntu_image_name_archive="${ubuntu_image_name_base}.img.xz"
+ubuntu_image_name_raw="${ubuntu_image_name_base}.img"
 
-xz -d ubuntu-20.04.3-preinstalled-server-arm64+raspi.img.xz
+wget https://cdimage.ubuntu.com/releases/20.04/release/ubuntu-20.04.4-preinstalled-server-arm64+raspi.img.xz
+echo "6aeba20c00ef13ee7b48c57217ad0d6fc3b127b3734c113981d9477aceb4dad7 *${ubuntu_image_name_archive}" | shasum -a 256 --check
 
-sudo losetup -Pf ubuntu-20.04.3-preinstalled-server-arm64+raspi.img
+xz -d "$ubuntu_image_name_archive"
 
-sudo truncate -c -s +1000M ubuntu-20.04.3-preinstalled-server-arm64+raspi.img
-sudo parted /dev/loop0 resizepart 2 4000MB -s
-sudo e2fsck -f /dev/loop0p2
+sudo losetup -Pf "$ubuntu_image_name_raw"
+
+sudo truncate -c -s +1000M "$ubuntu_image_name_raw"
+IN=$(sudo parted /dev/loop0 print -m -s | tail -n 1)
+# shellcheck disable=SC2206
+# this is intentional splitting my dear linter!
+arrIN=(${IN//:/ })
+
+sudo parted /dev/loop0 resizepart 2 "${arrIN[2]}" -s
+sudo e2fsck -pf /dev/loop0p2
 sudo resize2fs /dev/loop0p2
 
 sudo mount /dev/loop0p2 /mnt/
@@ -27,6 +36,9 @@ cat << 'INSTALL' > /tmp/install.bash
 set -eo pipefail
 
 function kernel-nonsense() {
+  cat <<'EOF' | tee /boot/firmware/cmdline.txt
+dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=LABEL=writable rootfstype=ext4 elevator=deadline rootwait fixrtc quiet splash cgroup_enable=memory swapaccount=1 cgroup_memory=1 cgroup_enable=cpuset
+EOF
   zcat -qf "/boot/firmware/vmlinuz" >"/boot/firmware/vmlinux"
 
   cat <<'EOF' | tee /boot/firmware/usercfg.txt
@@ -87,17 +99,9 @@ EOF
 
 }
 
-function cloud-init-fix() {
+function cloud-init-configuration() {
 
-  cat <<'EOF' | tee /etc/cloud/cloud.cfg
-# The top level settings are used as module
-# and system configuration.
-# A set of users which may be applied and/or used by various modules
-# when a 'default' entry is found it will reference the 'default_user'
-# from the distro configuration specified below
-
-
-
+  cat <<'EOF' | tee /etc/cloud/cloud.cfg.d/06_user.cfg
 users:
   - name: kat
     gecos: my user
@@ -106,139 +110,27 @@ users:
     shell: /bin/bash
     ssh_authorized_keys:
       - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHRGGe84zs3TxJ8BTbsiVDAsctSf2JF5AS6g/5CyGD2l kat@local-pis
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMuS8Kd79MsGzWd68K7WrEIbtBM8WnsqTn0nNz1s+1V7 pi-key-mac
 
+EOF
 
-# If this is set, 'root' will not be able to ssh in and they
-# will get a message to login instead as the default $user
-disable_root: true
-
-# This will cause the set+update hostname module to not operate (if true)
-preserve_hostname: false
-
-# If you use datasource_list array, keep array items in a single line.
-# If you use multi line array, ds-identify script won't read array items.
-# Example datasource config
-# datasource:
-#    Ec2:
-#      metadata_urls: [ 'blah.com' ]
-#      timeout: 5 # (defaults to 50 seconds)
-#      max_wait: 10 # (defaults to 120 seconds)
-
-
-
-# The modules that run in the 'init' stage
-cloud_init_modules:
-  - migrator
-  - seed_random
-  - bootcmd
-  - write-files
-  - growpart
-  - resizefs
-  - disk_setup
-  - mounts
-  - set_hostname
-  - update_hostname
-  - update_etc_hosts
-  - ca-certs
-  - rsyslog
-  - users-groups
-  - ssh
-
-# The modules that run in the 'config' stage
-cloud_config_modules:
-  # Emit the cloud config ready event
-  # this can be used by upstart jobs for 'start on cloud-config'.
-  - emit_upstart
-  - snap
-  - ssh-import-id
-  - locale
-  - set-passwords
-  - grub-dpkg
-  - apt-pipelining
-  - apt-configure
-  - ubuntu-advantage
-  - ntp
-  - timezone
-  - disable-ec2-metadata
-  - runcmd
-  - byobu
-
-# The modules that run in the 'final' stage
-cloud_final_modules:
-  - package-update-upgrade-install
-  - fan
-  - landscape
-  - lxd
-  - ubuntu-drivers
-  - write-files-deferred
-  - puppet
-  - chef
-  - mcollective
-  - salt-minion
-  - reset_rmc
-  - refresh_rmc_and_interface
-  - rightscale_userdata
-  - scripts-vendor
-  - scripts-per-once
-  - scripts-per-boot
-  - scripts-per-instance
-  - scripts-user
-  - ssh-authkey-fingerprints
-  - keys-to-console
-  - install-hotplug
-  - phone-home
-  - final-message
-  - power-state-change
-
-# System and/or distro specific settings
-# (not accessible to handlers/transforms)
-system_info:
-  # This will affect which distro class gets used
-  distro: ubuntu
-  # Default user name + that default users groups (if added/used)
-  default_user:
-    name: ubuntu
-    lock_passwd: True
-    gecos: Ubuntu
-    groups: [adm, audio, cdrom, dialout, dip, floppy, lxd, netdev, plugdev, sudo, video]
-    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
-    shell: /bin/bash
+  cat <<'EOF' | tee /etc/cloud/cloud.cfg.d/07_network.cfg
   network:
-    renderers: ['netplan', 'eni', 'sysconfig']
-  # Automatically discover the best ntp_client
-  ntp_client: auto
-  # Other config here will be given to the distro class and/or path classes
-  paths:
-    cloud_dir: /var/lib/cloud/
-    templates_dir: /etc/cloud/templates/
-    upstart_dir: /etc/init/
-  package_mirrors:
-    - arches: [i386, amd64]
-      failsafe:
-        primary: http://archive.ubuntu.com/ubuntu
-        security: http://security.ubuntu.com/ubuntu
-      search:
-        primary:
-          - http://%(ec2_region)s.ec2.archive.ubuntu.com/ubuntu/
-          - http://%(availability_zone)s.clouds.archive.ubuntu.com/ubuntu/
-          - http://%(region)s.clouds.archive.ubuntu.com/ubuntu/
-        security: []
-    - arches: [arm64, armel, armhf]
-      failsafe:
-        primary: http://ports.ubuntu.com/ubuntu-ports
-        security: http://ports.ubuntu.com/ubuntu-ports
-      search:
-        primary:
-          - http://%(ec2_region)s.ec2.ports.ubuntu.com/ubuntu-ports/
-          - http://%(availability_zone)s.clouds.ports.ubuntu.com/ubuntu-ports/
-          - http://%(region)s.clouds.ports.ubuntu.com/ubuntu-ports/
-        security: []
-    - arches: [default]
-      failsafe:
-        primary: http://ports.ubuntu.com/ubuntu-ports
-        security: http://ports.ubuntu.com/ubuntu-ports
-  ssh_svcname: ssh
+    ethernets:
+      eth0:
+        dhcp4: true
+        optional: false
+        nameservers:
+         search: [internal.serenacodes.com]
+         addresses: [10.0.0.11, 8.8.8.8]
+    version: 2
+EOF
 
+  cat <<'EOF' | sudo tee /etc/networkd-dispatcher/routable.d/promisc.sh
+
+  #!/usr/bin/env sh
+
+  sudo ip link set eth0 promisc on
 EOF
 
 }
@@ -416,12 +308,39 @@ net.ipv4.conf.default.rp_filter = 0
 EOF
 }
 
+function install-kubernetes-binaries() {
+  ARCH="arm64"
+
+  CNI_VERSION="v0.8.2"
+  mkdir -p /opt/cni/bin
+  curl -L "https://github.com/containernetworking/plugins/releases/download/${CNI_VERSION}/cni-plugins-linux-${ARCH}-${CNI_VERSION}.tgz" | tar -C /opt/cni/bin -xz
+
+  DOWNLOAD_DIR=/usr/local/bin
+  mkdir -p $DOWNLOAD_DIR
+
+  CRICTL_VERSION="v1.22.0"
+  curl -L "https://github.com/kubernetes-sigs/cri-tools/releases/download/${CRICTL_VERSION}/crictl-${CRICTL_VERSION}-linux-${ARCH}.tar.gz" | tar -C $DOWNLOAD_DIR -xz
+
+  RELEASE="v1.23.6"
+  RELEASE_VERSION="v0.4.0"
+  (cd $DOWNLOAD_DIR; curl -L --remote-name-all https://storage.googleapis.com/kubernetes-release/release/${RELEASE}/bin/linux/${ARCH}/{kubeadm,kubelet,kubectl})
+  (cd $DOWNLOAD_DIR; chmod +x {kubeadm,kubelet,kubectl})
+
+
+  curl -sSL "https://raw.githubusercontent.com/kubernetes/release/${RELEASE_VERSION}/cmd/kubepkg/templates/latest/deb/kubelet/lib/systemd/system/kubelet.service" | sed "s:/usr/bin:${DOWNLOAD_DIR}:g" | tee /etc/systemd/system/kubelet.service
+  mkdir -p /etc/systemd/system/kubelet.service.d
+  curl -sSL "https://raw.githubusercontent.com/kubernetes/release/${RELEASE_VERSION}/cmd/kubepkg/templates/latest/deb/kubeadm/10-kubeadm.conf" | sed "s:/usr/bin:${DOWNLOAD_DIR}:g" | tee /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+
+  systemctl enable kubelet
+
+}
+
 kernel-nonsense
 k8s-modules
 containerd-modules
 
 apt-get update
-apt-get install -y openssh-server ca-certificates curl lsb-release wget gnupg sudo lm-sensors perl htop crudini bat apt-transport-https nftables
+apt-get install -y openssh-server ca-certificates curl lsb-release wget gnupg sudo lm-sensors perl htop crudini bat apt-transport-https nftables conntrack
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
 echo \
   "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
@@ -432,18 +351,11 @@ apt-get install -y containerd.io
 
 configure-containerd
 
-curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
-echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | tee /etc/apt/sources.list.d/kubernetes.list
-
-apt-get update
-
-apt-get install -y kubelet kubeadm kubectl
-
-apt-mark hold kubelet kubeadm kubectl
+install-kubernetes-binaries
 
 apt-get remove -y unattended-upgrades snapd
 
-cloud-init-fix
+cloud-init-configuration
 
 curl https://baltocdn.com/helm/signing.asc | apt-key add -
 echo "deb https://baltocdn.com/helm/stable/debian/ all main" | tee /etc/apt/sources.list.d/helm-stable-debian.list
@@ -466,9 +378,9 @@ sudo umount /mnt/boot/firmware
 sudo umount /mnt
 sudo losetup --detach "/dev/loop0"
 
-image_name="ubuntu-server-arm-$(date "+%F-%s").img"
+image_name="ubuntu-server-arm-20-04-$(date "+%F-%s").img"
 
-mv ubuntu-20.04.3-preinstalled-server-arm64+raspi.img "$image_name"
+mv "$ubuntu_image_name_raw" "$image_name"
 
 xz -z -k -9 -e -T 0 -v "$image_name"
 
