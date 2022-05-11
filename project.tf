@@ -10,7 +10,7 @@ module "project-services" {
 
   activate_api_identities = [
     {
-      api   = "pubsub.googleapis.com"
+      api = "pubsub.googleapis.com"
       roles = [
         "roles/pubsub.serviceAgent",
         "roles/cloudfunctions.invoker",
@@ -29,6 +29,6 @@ module "project-services" {
     "secretmanager.googleapis.com",
     "cloudfunctions.googleapis.com",
     "run.googleapis.com",
-    "artifactregistry.googleapis.com"
+    "containerregistry.googleapis.com",
   ]
 }

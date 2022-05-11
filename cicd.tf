@@ -37,3 +37,7 @@ module "rpi-image-triggers" {
   ciPullRequestPath = "ci/feature/cloudbuild.yaml"
 }
 
+resource "google_container_registry" "home-lab-registry" {
+  project  = data.google_project.project.project_id
+  location = "US"
+}

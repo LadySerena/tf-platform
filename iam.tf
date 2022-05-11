@@ -8,61 +8,48 @@ module "project-iam-bindings" {
   projects = [
     data.google_project.project.project_id
   ]
-  mode     = "additive"
+  mode = "additive"
 
   bindings = {
-    "roles/iam.serviceAccountCreator"      = [
+    "roles/iam.serviceAccountCreator" = [
       local.cloud_build_account,
     ],
     "roles/serviceusage.serviceUsageAdmin" = [
       local.cloud_build_account,
     ],
-    "roles/iam.securityAdmin"              = [
+    "roles/iam.securityAdmin" = [
       local.cloud_build_account,
     ],
-    "roles/compute.admin"                  = [
+    "roles/compute.admin" = [
       local.cloud_build_account,
     ],
-    "roles/storage.admin"                  = [
+    "roles/storage.admin" = [
       local.cloud_build_account,
     ],
-    "roles/iam.serviceAccountUser"         = [
+    "roles/iam.serviceAccountUser" = [
       local.cloud_build_account,
     ],
-    "roles/dns.admin"                      = [
+    "roles/dns.admin" = [
       local.cloud_build_account,
     ],
-    "roles/cloudfunctions.admin"           = [
+    "roles/cloudfunctions.admin" = [
       local.cloud_build_account,
     ],
-    "roles/pubsub.admin"                   = [
+    "roles/pubsub.admin" = [
       local.cloud_build_account,
     ],
+    "roles/iam.serviceAccountAdmin" = [
+      local.cloud_build_account
+    ]
   }
 }
 
-module "service_accounts" {
-  source        = "terraform-google-modules/service-accounts/google"
-  version       = "~> 3.0"
-  project_id    = data.google_project.project.project_id
-  prefix        = "tel-sa"
-  names         = [
-    "minecraft"
-  ]
-  project_roles = [
-    "${data.google_project.project.project_id}=>roles/secretmanager.viewer",
-    "${data.google_project.project.project_id}=>roles/logging.logWriter",
-    "${data.google_project.project.project_id}=>roles/monitoring.metricWriter",
-    "${data.google_project.project.project_id}=>roles/secretmanager.secretAccessor",
-  ]
-}
-
 module "discord_notifier_service_account" {
-  source        = "terraform-google-modules/service-accounts/google"
-  version       = "~> 3.0"
-  project_id    = data.google_project.project.project_id
-  prefix        = "tel-sa"
-  names         = [
+  source     = "terraform-google-modules/service-accounts/google"
+  version    = "~> 3.0"
+  project_id = data.google_project.project.project_id
+  prefix     = "tel-sa"
+  names      = [
     "discord-function"
   ]
   project_roles = [
@@ -72,11 +59,11 @@ module "discord_notifier_service_account" {
 }
 
 module "pi_image_service_account" {
-  source        = "terraform-google-modules/service-accounts/google"
-  version       = "~> 3.0"
-  project_id    = data.google_project.project.project_id
-  prefix        = "tel-sa"
-  names         = [
+  source     = "terraform-google-modules/service-accounts/google"
+  version    = "~> 3.0"
+  project_id = data.google_project.project.project_id
+  prefix     = "tel-sa"
+  names      = [
     "pi-image-builder"
   ]
   project_roles = [
@@ -86,4 +73,9 @@ module "pi_image_service_account" {
     "${data.google_project.project.project_id}=>roles/logging.logWriter",
     "${data.google_project.project.project_id}=>roles/compute.instanceAdmin.v1"
   ]
+}
+
+resource "google_service_account" "image-puller-account" {
+  account_id   = "tel-sa-home-lab-image-pull"
+  display_name = "homelab-image-puller"
 }

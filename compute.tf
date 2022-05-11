@@ -41,56 +41,56 @@ module "firewall_rules" {
 
   rules = [
     {
-      name                    = "allow-ssh-iap-ingress"
-      priority                = 1000
-      description             = "allow ssh via identity aware proxy see here for range https://cloud.google.com/iap/docs/using-tcp-forwarding#create-firewall-rule"
-      direction               = "INGRESS"
-      ranges                  = [
+      name        = "allow-ssh-iap-ingress"
+      priority    = 1000
+      description = "allow ssh via identity aware proxy see here for range https://cloud.google.com/iap/docs/using-tcp-forwarding#create-firewall-rule"
+      direction   = "INGRESS"
+      ranges = [
         "35.235.240.0/20"
       ]
       source_tags             = null
       source_service_accounts = null
       target_tags             = null
       target_service_accounts = null
-      allow                   = [
+      allow = [
         {
           protocol = "tcp"
-          ports    = [
+          ports = [
             "22"
           ]
         }
       ]
-      deny                    = []
-      log_config              = null
+      deny       = []
+      log_config = null
     },
     {
-      name                    = "allow-minecraft"
-      priority                = 1001
-      description             = "allows friends on public internet to access minecraft"
-      direction               = "INGRESS"
-      ranges                  = [
+      name        = "allow-minecraft"
+      priority    = 1001
+      description = "allows friends on public internet to access minecraft"
+      direction   = "INGRESS"
+      ranges = [
         "0.0.0.0/0"
       ]
       source_tags             = null
       source_service_accounts = null
       target_tags             = null
       target_service_accounts = null
-      allow                   = [
+      allow = [
         {
           protocol = "tcp"
-          ports    = [
+          ports = [
             "25565"
           ]
         },
         {
           protocol = "udp"
-          ports    = [
+          ports = [
             "25565"
           ]
         }
       ]
-      deny                    = []
-      log_config              = null
+      deny       = []
+      log_config = null
     }
   ]
 }
