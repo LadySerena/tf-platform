@@ -40,6 +40,9 @@ module "project-iam-bindings" {
     ],
     "roles/iam.serviceAccountAdmin" = [
       local.cloud_build_account
+    ],
+    "roles/iam.workloadIdentityPoolAdmin" = [
+      local.cloud_build_account
     ]
   }
 }
