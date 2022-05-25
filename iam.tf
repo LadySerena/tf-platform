@@ -79,3 +79,21 @@ resource "google_service_account" "image-puller-account" {
   account_id   = "tel-sa-home-lab-image-pull"
   display_name = "homelab-image-puller"
 }
+
+resource "google_service_account" "github-actions-image-push" {
+  account_id   = "tel-sa-home-lab-image-push"
+  display_name = "github-actions-image-push"
+}
+
+module "gh_oidc" {
+  source      = "terraform-google-modules/github-actions-runners/google//modules/gh-oidc"
+  project_id  = data.google_project.project.project_id
+  pool_id     = "github-actions-pool"
+  provider_id = "github-provider"
+  sa_mapping  = {
+    (google_service_account.github-actions-image-push.account_id) = {
+      sa_name   = google_service_account.github-actions-image-push.name
+      attribute = "attribute.repository/user/repo"
+    }
+  }
+}

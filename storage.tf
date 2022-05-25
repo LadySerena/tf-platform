@@ -37,6 +37,12 @@ resource "google_storage_bucket_iam_member" "serena-containers" {
   member = "user:serena.tiede@gmail.com"
 }
 
+resource "google_storage_bucket_iam_member" "github-actions" {
+  bucket = google_container_registry.home-lab-registry.id
+  role   = "roles/storage.objectAdmin"
+  member = "serviceAccount:${google_service_account.github-actions-image-push.email}"
+}
+
 resource "google_storage_bucket_iam_member" "containers-sa-member" {
   bucket = google_container_registry.home-lab-registry.id
   role   = "roles/storage.objectViewer"
