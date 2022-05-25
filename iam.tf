@@ -96,7 +96,7 @@ module "gh_oidc" {
   sa_mapping  = {
     (google_service_account.github-actions-image-push.account_id) = {
       sa_name   = google_service_account.github-actions-image-push.name
-      attribute = "attribute.repository/user/repo"
+      attribute = "attribute.repository/LadySerena/basic-web"
     }
   }
 }
