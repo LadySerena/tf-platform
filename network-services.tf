@@ -38,3 +38,43 @@ resource "google_dns_record_set" "polywork" {
   type = "CNAME"
 }
 
+resource "google_dns_record_set" "pi3" {
+  managed_zone = google_dns_managed_zone.casa.name
+  name         = "test-pi.${google_dns_managed_zone.casa.dns_name}"
+  rrdatas      = [
+    "10.0.0.11"
+  ]
+  ttl  = 300
+  type = "A"
+}
+
+resource "google_dns_record_set" "melchior" {
+  managed_zone = google_dns_managed_zone.casa.name
+  name         = "melchior.${google_dns_managed_zone.casa.dns_name}"
+  rrdatas      = [
+    "10.0.0.18"
+  ]
+  ttl  = 300
+  type = "A"
+}
+
+resource "google_dns_record_set" "balthasar" {
+  managed_zone = google_dns_managed_zone.casa.name
+  name         = "balthasar.${google_dns_managed_zone.casa.dns_name}"
+  rrdatas      = [
+    "10.0.0.19"
+  ]
+  ttl  = 300
+  type = "A"
+}
+
+resource "google_dns_record_set" "casper" {
+  managed_zone = google_dns_managed_zone.casa.name
+  name         = "casper.${google_dns_managed_zone.casa.dns_name}"
+  rrdatas      = [
+    "10.0.0.20"
+  ]
+  ttl  = 300
+  type = "A"
+}
+
