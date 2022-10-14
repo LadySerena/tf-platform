@@ -83,7 +83,7 @@ module "kubernetes_bootstrap_account" {
   project_id = data.google_project.project.project_id
   prefix     = local.service_account_prefix
   names      = [
-    "kubernetes-secret-viewer"
+    "kube-secret-viewer"
   ]
   project_roles = [
     "${data.google_project.project.project_id}=>roles/secretmanager.secretAccessor",
