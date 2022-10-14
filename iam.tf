@@ -1,5 +1,6 @@
 locals {
-  cloud_build_account = "serviceAccount:681636924832@cloudbuild.gserviceaccount.com"
+  cloud_build_account    = "serviceAccount:681636924832@cloudbuild.gserviceaccount.com"
+  service_account_prefix = "tel-sa"
 }
 
 # give cloud build service account perms for pubsub
@@ -51,12 +52,11 @@ module "discord_notifier_service_account" {
   source     = "terraform-google-modules/service-accounts/google"
   version    = "~> 3.0"
   project_id = data.google_project.project.project_id
-  prefix     = "tel-sa"
+  prefix     = local.service_account_prefix
   names      = [
     "discord-function"
   ]
   project_roles = [
-    "${data.google_project.project.project_id}=>roles/secretmanager.viewer",
     "${data.google_project.project.project_id}=>roles/secretmanager.secretAccessor",
   ]
 }
@@ -65,16 +65,28 @@ module "pi_image_service_account" {
   source     = "terraform-google-modules/service-accounts/google"
   version    = "~> 3.0"
   project_id = data.google_project.project.project_id
-  prefix     = "tel-sa"
+  prefix     = local.service_account_prefix
   names      = [
     "pi-image-builder"
   ]
   project_roles = [
-    "${data.google_project.project.project_id}=>roles/secretmanager.viewer",
     "${data.google_project.project.project_id}=>roles/secretmanager.secretAccessor",
     "${data.google_project.project.project_id}=>roles/monitoring.metricWriter",
     "${data.google_project.project.project_id}=>roles/logging.logWriter",
     "${data.google_project.project.project_id}=>roles/compute.instanceAdmin.v1"
+  ]
+}
+
+module "kubernetes_bootstrap_account" {
+  source     = "terraform-google-modules/service-accounts/google"
+  version    = "~> 3.0"
+  project_id = data.google_project.project.project_id
+  prefix     = local.service_account_prefix
+  names      = [
+    "kubernetes-secret-viewer"
+  ]
+  project_roles = [
+    "${data.google_project.project.project_id}=>roles/secretmanager.secretAccessor",
   ]
 }
 
