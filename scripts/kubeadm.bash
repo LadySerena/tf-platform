@@ -6,7 +6,8 @@ token=$1
 cert=$2
 
 sudo kubeadm init --pod-network-cidr 10.0.128.0/17 --service-cidr 10.1.0.0/17 --skip-phases=addon/kube-proxy \
---control-plane-endpoint k8s.serenacodes.casa:6443 --upload-certs --token "$token" --certificate-key "$cert"
+--control-plane-endpoint k8s.serenacodes.casa:6443 --upload-certs --apiserver-cert-extra-sans="melchior.serenacodes.casa,balthasar.serenacodes.casa,casper.serenacodes.casa,10.0.0.18,10.0.0.19,10.0.0.20" \
+--token "$token" --certificate-key "$cert"
 mkdir -p "$HOME/.kube"
 sudo cp -i /etc/kubernetes/admin.conf "$HOME/.kube/config"
 sudo chown "$(id -u)":"$(id -g)" "$HOME/.kube/config"

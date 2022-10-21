@@ -77,6 +77,20 @@ module "pi_image_service_account" {
   ]
 }
 
+
+module "dns01-challenge-account" {
+  source     = "terraform-google-modules/service-accounts/google"
+  version    = "~> 3.0"
+  project_id = data.google_project.project.project_id
+  prefix     = local.service_account_prefix
+  names      = [
+    "dns01-challenge"
+  ]
+  project_roles = [
+    "${data.google_project.project.project_id}=>roles/dns.admin",
+  ]
+}
+
 module "kubernetes_bootstrap_account" {
   source     = "terraform-google-modules/service-accounts/google"
   version    = "~> 3.0"
