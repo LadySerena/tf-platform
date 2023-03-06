@@ -4,7 +4,7 @@ data "google_project" "project" {
 # get apis by running gcloud services list --available
 module "project-services" {
   source      = "terraform-google-modules/project-factory/google//modules/project_services"
-  version     = "11.3.1"
+  version     = "~> 14"
   enable_apis = true
   project_id  = data.google_project.project.project_id
 
@@ -30,5 +30,6 @@ module "project-services" {
     "cloudfunctions.googleapis.com",
     "run.googleapis.com",
     "containerregistry.googleapis.com",
+    "artifactregistry.googleapis.com",
   ]
 }

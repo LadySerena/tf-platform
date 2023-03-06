@@ -21,7 +21,7 @@ resource "google_dns_record_set" "verification" {
 resource "google_dns_record_set" "blog" {
   managed_zone = google_dns_managed_zone.default.name
   name         = "blog.${google_dns_managed_zone.default.dns_name}"
-  rrdatas      = [
+  rrdatas = [
     "ladyserena.github.io."
   ]
   ttl  = 300
@@ -31,7 +31,7 @@ resource "google_dns_record_set" "blog" {
 resource "google_dns_record_set" "polywork" {
   managed_zone = google_dns_managed_zone.default.name
   name         = "work.${google_dns_managed_zone.default.dns_name}"
-  rrdatas      = [
+  rrdatas = [
     "behavioural-pigeon-qrwa62ok4u5p883no18k9pz3.herokudns.com."
   ]
   ttl  = 300
@@ -41,7 +41,7 @@ resource "google_dns_record_set" "polywork" {
 resource "google_dns_record_set" "pi3" {
   managed_zone = google_dns_managed_zone.casa.name
   name         = "test-pi.${google_dns_managed_zone.casa.dns_name}"
-  rrdatas      = [
+  rrdatas = [
     "10.0.0.11"
   ]
   ttl  = 300
@@ -51,7 +51,7 @@ resource "google_dns_record_set" "pi3" {
 resource "google_dns_record_set" "melchior" {
   managed_zone = google_dns_managed_zone.casa.name
   name         = "melchior.${google_dns_managed_zone.casa.dns_name}"
-  rrdatas      = [
+  rrdatas = [
     "10.0.0.18"
   ]
   ttl  = 300
@@ -61,7 +61,7 @@ resource "google_dns_record_set" "melchior" {
 resource "google_dns_record_set" "balthasar" {
   managed_zone = google_dns_managed_zone.casa.name
   name         = "balthasar.${google_dns_managed_zone.casa.dns_name}"
-  rrdatas      = [
+  rrdatas = [
     "10.0.0.19"
   ]
   ttl  = 300
@@ -71,7 +71,7 @@ resource "google_dns_record_set" "balthasar" {
 resource "google_dns_record_set" "casper" {
   managed_zone = google_dns_managed_zone.casa.name
   name         = "casper.${google_dns_managed_zone.casa.dns_name}"
-  rrdatas      = [
+  rrdatas = [
     "10.0.0.20"
   ]
   ttl  = 300

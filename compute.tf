@@ -10,7 +10,7 @@ data "google_compute_image" "pi-image" {
 
 module "minecraft-vpc" {
   source  = "terraform-google-modules/network/google"
-  version = "~> 3.0"
+  version = "~> 6"
 
   project_id   = data.google_project.project.project_id
   network_name = "minecraft-vpc"

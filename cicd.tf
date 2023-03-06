@@ -37,7 +37,9 @@ module "rpi-image-triggers" {
   ciPullRequestPath = "ci/feature/cloudbuild.yaml"
 }
 
-resource "google_container_registry" "home-lab-registry" {
-  project  = data.google_project.project.project_id
-  location = "US"
+resource "google_artifact_registry_repository" "serena-repo" {
+  location      = "us-central1"
+  repository_id = "telvanni-industries"
+  description   = "home for serena's containers"
+  format        = "DOCKER"
 }

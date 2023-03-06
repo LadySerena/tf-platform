@@ -5,7 +5,7 @@ locals {
 
 # give cloud build service account perms for pubsub
 module "project-iam-bindings" {
-  source   = "terraform-google-modules/iam/google//modules/projects_iam"
+  source = "terraform-google-modules/iam/google//modules/projects_iam"
   projects = [
     data.google_project.project.project_id
   ]
@@ -50,10 +50,10 @@ module "project-iam-bindings" {
 
 module "discord_notifier_service_account" {
   source     = "terraform-google-modules/service-accounts/google"
-  version    = "~> 3.0"
+  version    = "~> 4.0"
   project_id = data.google_project.project.project_id
   prefix     = local.service_account_prefix
-  names      = [
+  names = [
     "discord-function"
   ]
   project_roles = [
@@ -63,10 +63,10 @@ module "discord_notifier_service_account" {
 
 module "pi_image_service_account" {
   source     = "terraform-google-modules/service-accounts/google"
-  version    = "~> 3.0"
+  version    = "4.2.0"
   project_id = data.google_project.project.project_id
   prefix     = local.service_account_prefix
-  names      = [
+  names = [
     "pi-image-builder"
   ]
   project_roles = [
@@ -80,10 +80,10 @@ module "pi_image_service_account" {
 
 module "dns01-challenge-account" {
   source     = "terraform-google-modules/service-accounts/google"
-  version    = "~> 3.0"
+  version    = "4.2.0"
   project_id = data.google_project.project.project_id
   prefix     = local.service_account_prefix
-  names      = [
+  names = [
     "dns01-challenge"
   ]
   project_roles = [
@@ -93,10 +93,10 @@ module "dns01-challenge-account" {
 
 module "kubernetes_bootstrap_account" {
   source     = "terraform-google-modules/service-accounts/google"
-  version    = "~> 3.0"
+  version    = "4.2.0"
   project_id = data.google_project.project.project_id
   prefix     = local.service_account_prefix
-  names      = [
+  names = [
     "kube-secret-viewer"
   ]
   project_roles = [
@@ -119,7 +119,7 @@ module "gh_oidc" {
   project_id  = data.google_project.project.project_id
   pool_id     = "github-actions-pool"
   provider_id = "github-provider"
-  sa_mapping  = {
+  sa_mapping = {
     (google_service_account.github-actions-image-push.account_id) = {
       sa_name   = google_service_account.github-actions-image-push.name
       attribute = "attribute.repository/LadySerena/basic-web"

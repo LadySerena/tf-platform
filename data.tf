@@ -4,7 +4,7 @@ data "google_cloudfunctions_function" "discord_notifier" {
 
 module "cloud_build_pub_sub" {
   source  = "terraform-google-modules/pubsub/google"
-  version = "~> 1.9"
+  version = "~> 3.1"
 
   topic      = "cloud-builds"
   project_id = data.google_project.project.project_id
