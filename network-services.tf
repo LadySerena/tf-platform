@@ -18,6 +18,14 @@ resource "google_dns_record_set" "verification" {
   type         = "TXT"
 }
 
+resource "google_dns_record_set" "casa_verification" {
+  managed_zone = google_dns_managed_zone.casa.name
+  name         = "serenacodes.casa."
+  rrdatas      = ["google-site-verification=W2hPSRjSweImLdL3FF079j2bpqGyBqANWcCGzUz4WJY"]
+  ttl          = 300
+  type         = "TXT"
+}
+
 resource "google_dns_record_set" "blog" {
   managed_zone = google_dns_managed_zone.default.name
   name         = "blog.${google_dns_managed_zone.default.dns_name}"
